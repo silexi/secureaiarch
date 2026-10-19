@@ -27,7 +27,8 @@ class Client:
     (a JSON schema enables constrained decoding)."""
 
     def chat(self, model: str, messages: list[dict], temperature: float, fmt=None,
-             num_predict: int = 400, seed: int | None = None, tools: list[dict] | None = None) -> dict:
+             num_predict: int = 400, seed: int | None = None, tools: list[dict] | None = None,
+             top_logprobs: int = 0) -> dict:
         options = {"temperature": temperature, "num_predict": num_predict}
         if seed is not None:
             options["seed"] = seed
@@ -36,6 +37,9 @@ class Client:
             body["format"] = fmt
         if tools is not None:
             body["tools"] = tools
+        if top_logprobs:
+            body["logprobs"] = True
+            body["top_logprobs"] = top_logprobs
         t0 = time.perf_counter()
         data = _post("/api/chat", body)
         message = data.get("message", {}) or {}
@@ -47,6 +51,7 @@ class Client:
             "prompt_tokens": data.get("prompt_eval_count", 0),
             "output_tokens": data.get("eval_count", 0),
             "seconds": time.perf_counter() - t0,
+            "logprobs": data.get("logprobs") or [],
         }
 
     def capabilities(self, model: str) -> list[str]:
