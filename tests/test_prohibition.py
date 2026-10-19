@@ -75,6 +75,16 @@ class Prohibition(unittest.TestCase):
         self.assertAlmostEqual(x["bound"], 0.01, places=6)
         self.assertAlmostEqual(x["mass"]["open"], 0.04, places=6)
         self.assertAlmostEqual(x["mass"]["other"], 0.01, places=6)
+        self.assertAlmostEqual(x["unresolved"], 0.04, places=6)
+
+    def test_open_branch_is_split_by_the_next_token(self):
+        greedy_open = lp([("<tool_call>", [("<tool_call>", 0.9)]), ("\n", []), ("<", []), ("function", []),
+                          ("=", [("=", 0.7), ("=get", 0.3)]), ("delete", [("delete", 0.6), ("get", 0.4)]), ("_customer", [])])
+        d = P.first_decision(greedy_open)
+        self.assertAlmostEqual(d["p_delete"], 0.42, places=6)
+        self.assertEqual(d["chosen"], "=delete")
+        self.assertTrue(d["delete_in_top"])
+        self.assertAlmostEqual(d["unresolved"], 0.0, places=6)
 
     def test_counts_and_comparison(self):
         res = P.run(Fake(), "fake", temperatures=(1.0,), repeats=2, progress=lambda m: None)

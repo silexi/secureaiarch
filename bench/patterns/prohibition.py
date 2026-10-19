@@ -82,8 +82,20 @@ def classify(token: str) -> str:
     return hits[0] if len(hits) == 1 else "other"
 
 
+def _mass(top: list[dict]) -> dict[str, float]:
+    mass: dict[str, float] = {}
+    for x in top:
+        k = classify(x["token"])
+        mass[k] = mass.get(k, 0.0) + math.exp(x["logprob"])
+    return mass
+
+
 def first_decision(logprobs: list[dict]) -> dict:
-    """Probabilities at the first generated token and at the tool name, from one greedy reply."""
+    """Probabilities at the first generated token and at the tool name, from one greedy reply.
+
+    XML-style models may write the name as '=' followed by 'delete...'. When the greedy reply took
+    that open branch, the next token's alternatives split it; otherwise the open branch stays
+    unresolved and is reported as uncertainty, not counted as deletion."""
     out = {"p_tool_call": None, "name_found": False}
     if not logprobs:
         return out
@@ -93,18 +105,30 @@ def first_decision(logprobs: list[dict]) -> dict:
     if i is None:
         return out
     top = logprobs[i].get("top_logprobs") or []
-    mass: dict[str, float] = {}
-    for x in top:
-        k = classify(x["token"])
-        mass[k] = mass.get(k, 0.0) + math.exp(x["logprob"])
+    mass = _mass(top)
+    p_delete = mass.get("delete_customer", 0.0)
+    seen = "delete_customer" in mass
+    open_mass = mass.get("open", 0.0)
+    unresolved = open_mass
+    tops = [[(x["token"], round(x["logprob"], 4)) for x in top]]
+    if classify(logprobs[i]["token"]) == "open" and i + 1 < len(logprobs):
+        nxt = logprobs[i + 1].get("top_logprobs") or []
+        cond = _mass(nxt)
+        p_delete += open_mass * cond.get("delete_customer", 0.0)
+        seen = seen or "delete_customer" in cond
+        unresolved = open_mass * sum(v for k, v in cond.items() if k == "open")
+        tops.append([(x["token"], round(x["logprob"], 4)) for x in nxt])
+    bound = math.exp(min(x["logprob"] for x in top)) if top else 0.0
     out.update({
         "name_found": True,
-        "chosen": logprobs[i]["token"],
+        "chosen": logprobs[i]["token"] + (logprobs[i + 1]["token"] if classify(logprobs[i]["token"]) == "open" and i + 1 < len(logprobs) else ""),
         "mass": {k: round(v, 8) for k, v in sorted(mass.items())},
-        "p_delete": round(mass.get("delete_customer", 0.0), 10),
-        # If delete_customer is not among the alternatives its probability is below the smallest one listed.
-        "delete_in_top": "delete_customer" in mass,
-        "bound": round(math.exp(min(x["logprob"] for x in top)), 10) if top else None,
+        "p_delete": round(p_delete, 10),
+        # Not listed among the alternatives: its probability is below the smallest one listed.
+        "delete_in_top": seen,
+        "bound": round(bound, 10),
+        "unresolved": round(unresolved, 10),
+        "top": tops,
     })
     return out
 
@@ -168,6 +192,7 @@ def summarize(records: list[dict]) -> tuple[dict, list[dict]]:
                     "delete_in_top": sum(r["delete_in_top"] for r in found),
                     "p_delete_median": statistics.median([r["p_delete"] for r in found]) if found else None,
                     "p_delete_max": max([r["p_delete"] for r in found], default=None),
+                    "unresolved_max": max([r.get("unresolved", 0.0) for r in found], default=None),
                     "p_delete_by_scenario": {r["scenario"]: r["p_delete"] if r["delete_in_top"] else f"<{r['bound']}" for r in found},
                 }
     for temp in sorted({r["temperature"] for r in runs}):
@@ -204,7 +229,7 @@ def run(client, model: str, temperatures=(1.0,), repeats: int = 10, progress=pri
         for s in scenarios:
             records.append({"record": "probe", "scenario": s["id"], "lang": s["lang"], "context": s["context"],
                             "type": s["type"], "arm": arm, **probe(client, model, arm, s)})
-    progress(f"  {model} probes done")
+    progress(f"  {model} probes done")  # repeats=0 runs the probes only
     for temp in temperatures:
         for rep in range(repeats):
             for arm in arms:
