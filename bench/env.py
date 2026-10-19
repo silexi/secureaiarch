@@ -34,7 +34,8 @@ def hardware() -> dict:
 
 
 def git_sha() -> str:
-    return _run(["git", "rev-parse", "--short", "HEAD"])
+    """Commit of the harness. BENCH_GIT_SHA overrides it when the code was copied without .git."""
+    return os.environ.get("BENCH_GIT_SHA") or _run(["git", "rev-parse", "--short", "HEAD"])
 
 
 def now() -> str:
