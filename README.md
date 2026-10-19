@@ -23,7 +23,7 @@ BENCH_MACHINE="Mac mini" python3 -m bench run structured-output --models qwen2.5
 git add results && git commit -m "structured-output results" && git push
 ```
 
-The push triggers the deploy. The Mac Mini only makes outbound connections (KS-1, MK-11).
+The push triggers the deploy. The machine running the harness only makes outbound connections; nothing needs to reach it from the internet.
 
 ## Development
 
