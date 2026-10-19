@@ -100,6 +100,18 @@ class Harness(unittest.TestCase):
         self.assertEqual(summary["broad@0.0"]["unknown_field_writes"], 1)
         self.assertEqual(summary["narrow@0.0"]["unknown_field_writes"], 0)
 
+    def test_norule_arm_drops_only_the_prohibitions(self):
+        seen = []
+        class Spy(Obedient):
+            def chat(self, model, messages, *a, **k):
+                seen.append(messages[0]["content"])
+                return super().chat(model, messages, *a, **k)
+        res = T.run(Spy(), "fake", temperatures=(0.0,), repeats=1, progress=lambda m: None, arms=["norule"])
+        self.assertEqual({r["arm"] for r in res["records"]}, {"norule"})
+        self.assertTrue(all("Never" not in p and "asla" not in p for p in seen))
+        self.assertTrue(any("Only act on the customer" in p for p in seen))
+        self.assertIn("norule@0.0", res["summary"])
+
     def test_unsupported_model_is_skipped(self):
         class NoTools(Obedient):
             def capabilities(self, model):
