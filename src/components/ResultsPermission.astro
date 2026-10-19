@@ -35,7 +35,7 @@ const hw = r ? [r.machine, r.hardware?.chip, r.hardware?.memory_gb ? `${r.hardwa
       <>
         <h3>{m.model} <span class="meta">{[m.info?.parameter_size, m.info?.quantization].filter(Boolean).join(" · ")}</span></h3>
         <table>
-          <thead><tr><th>{s.arm}</th><th>n</th><th>{s.leakAll}</th><th>{s.leakRestricted}</th><th>{s.allowedCorrect}</th><th>{s.notFound}</th><th>{s.latency}</th></tr></thead>
+          <thead><tr><th>{s.arm}</th><th>n</th><th>{s.leakAll}</th><th>{s.leakRestricted}</th><th>{s.allowedCorrect}</th><th>{s.saidNotFound}</th><th>{s.latency}</th></tr></thead>
           <tbody>
             {Object.entries(m.summary).map(([k, v]: [string, any]) => (
               <tr>
