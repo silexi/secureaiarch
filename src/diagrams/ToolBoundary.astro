@@ -1,0 +1,33 @@
+---
+import type { Lang } from "../i18n";
+const { lang } = Astro.props as { lang: Lang };
+const L = {
+  en: { user: "User request", data: "Record fields", dataNote: "free text written by others", llm: "LLM", llmNote: "decides which tool to call", gate: "Tool layer", gateNote: "fixed tools, allowlists, scope check", read: "Read", readNote: "output labelled as data", change: "Change contact", changeNote: "phone or name only", del: "Deletion request", delNote: "a person approves", prompt: "Rule in the prompt", promptNote: "a request, not a limit", title: "Tool boundary topology" },
+  tr: { user: "Kullanıcı talebi", data: "Kayıt alanları", dataNote: "başkalarının yazdığı serbest metin", llm: "LLM", llmNote: "hangi aracın çağrılacağına karar verir", gate: "Araç katmanı", gateNote: "sabit araçlar, izin listeleri, kapsam kontrolü", read: "Okuma", readNote: "çıktı veri olarak işaretli", change: "İletişim değişikliği", changeNote: "yalnızca telefon ya da ad", del: "Silme talebi", delNote: "bir kişi onaylar", prompt: "Prompt'taki kural", promptNote: "bir rica, sınır değil", title: "Araç sınırı topolojisi" },
+}[lang];
+---
+<figure class="diagram">
+<svg viewBox="0 0 450 420" role="img" aria-label={L.title}>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <rect class="box untrusted" x="20" y="10" width="190" height="44" rx="8"/>
+  <text x="115" y="37" text-anchor="middle">{L.user}</text>
+  <rect class="box untrusted" x="240" y="10" width="190" height="52" rx="8"/>
+  <text x="335" y="31" text-anchor="middle">{L.data}</text><text class="small" x="335" y="48" text-anchor="middle">{L.dataNote}</text>
+  <path class="edge" d="M115,54 V100"/>
+  <path class="edge" d="M335,62 V80 H180 V100"/>
+  <rect class="box" x="20" y="102" width="410" height="52" rx="8"/>
+  <text x="225" y="124" text-anchor="middle">{L.llm}</text><text class="small" x="225" y="142" text-anchor="middle">{L.llmNote}</text>
+  <path class="edge" d="M225,154 V196"/>
+  <rect class="box control" x="20" y="198" width="410" height="52" rx="8"/>
+  <text x="225" y="220" text-anchor="middle">{L.gate}</text><text class="small" x="225" y="238" text-anchor="middle">{L.gateNote}</text>
+  <path class="edge" d="M90,250 V290"/><path class="edge" d="M225,250 V290"/><path class="edge" d="M360,250 V290"/>
+  <rect class="box sink" x="20" y="292" width="130" height="52" rx="8"/>
+  <text x="85" y="314" text-anchor="middle">{L.read}</text><text class="small" x="85" y="332" text-anchor="middle">{L.readNote}</text>
+  <rect class="box sink" x="160" y="292" width="130" height="52" rx="8"/>
+  <text x="225" y="314" text-anchor="middle">{L.change}</text><text class="small" x="225" y="332" text-anchor="middle">{L.changeNote}</text>
+  <rect class="box sink" x="300" y="292" width="130" height="52" rx="8"/>
+  <text x="365" y="314" text-anchor="middle">{L.del}</text><text class="small" x="365" y="332" text-anchor="middle">{L.delNote}</text>
+  <rect class="box weak" x="20" y="362" width="410" height="48" rx="8"/>
+  <text x="225" y="382" text-anchor="middle">{L.prompt}</text><text class="small" x="225" y="399" text-anchor="middle">{L.promptNote}</text>
+</svg>
+</figure>

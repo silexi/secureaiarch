@@ -2,6 +2,9 @@
 import type { Lang } from "../i18n";
 import ResultsStructured from "./ResultsStructured.astro";
 import ResultsPermission from "./ResultsPermission.astro";
+import ResultsToolBoundary from "./ResultsToolBoundary.astro";
 const { lang, pattern } = Astro.props as { lang: Lang; pattern: string };
+const views: Record<string, any> = { "permission-filter": ResultsPermission, "tool-boundary": ResultsToolBoundary };
+const View = views[pattern] ?? ResultsStructured;
 ---
-{pattern === "permission-filter" ? <ResultsPermission lang={lang} pattern={pattern} /> : <ResultsStructured lang={lang} pattern={pattern} />}
+<View lang={lang} pattern={pattern} />
