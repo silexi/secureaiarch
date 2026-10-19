@@ -1,5 +1,5 @@
 {
-  // Statik site. secureaiarch.com şu an domain-placeholder Worker'ında; geçişte route oradan buraya taşınır.
+  // Static site. secureaiarch.com is currently served by the domain-placeholder Worker; on cutover the route moves from there to here.
   "name": "secureaiarch",
   "compatibility_date": "2026-10-01",
   "workers_dev": true,

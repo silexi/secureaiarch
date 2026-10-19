@@ -4,7 +4,7 @@ export async function GET() {
   const base = "https://secureaiarch.com";
   const urls = ["/en", "/tr", "/en/method", "/tr/method"];
   for (const e of await getCollection("patterns")) {
-    if (!resultsFor(e.data.results)) continue; // taslaklar indekslenmez
+    if (!resultsFor(e.data.results)) continue; // drafts are not indexed
     const [slug, lang] = e.id.split("/");
     urls.push(`/${lang}/patterns/${slug}`);
   }
