@@ -1,5 +1,5 @@
 {
-  // Static site. secureaiarch.com is currently served by the domain-placeholder Worker; on cutover the route moves from there to here.
+  // Static site. The apex is served here; www.secureaiarch.com stays on the domain-placeholder Worker, which redirects it to the apex.
   "name": "secureaiarch",
   "compatibility_date": "2026-10-01",
   "workers_dev": true,
@@ -8,5 +8,8 @@
     "directory": "./dist",
     "html_handling": "drop-trailing-slash",
     "not_found_handling": "404-page"
-  }
+  },
+  "routes": [
+    { "pattern": "secureaiarch.com", "custom_domain": true }
+  ]
 }
