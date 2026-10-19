@@ -58,7 +58,8 @@ def main() -> int:
             for rec in res["records"]:
                 f.write(json.dumps(rec, ensure_ascii=False) + "\n")
         result["models"].append({"model": model, "info": client.model_info(model),
-                                 "summary": res["summary"], "examples": res["examples"]})
+                                 "summary": res["summary"], "examples": res["examples"],
+                                 "constrained_error": res.get("constrained_error")})
     (out / f"{args.pattern}.json").write_text(json.dumps(result, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"wrote {out / (args.pattern + '.json')}", file=sys.stderr)
     return 0

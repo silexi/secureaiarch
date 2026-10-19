@@ -19,6 +19,7 @@ const hw = r ? [r.machine, r.hardware?.chip, r.hardware?.memory_gb ? `${r.hardwa
     {r.models.map((m: any) => (
       <>
         <h3>{m.model} <span class="meta">{[m.info?.parameter_size, m.info?.quantization].filter(Boolean).join(" · ")}</span></h3>
+        {m.constrained_error && <p class="meta">{s.constrainedError} <code>{m.constrained_error}</code></p>}
         <table>
           <thead><tr>
             <th>{s.arm}</th><th>{s.temp}</th><th>n</th><th>{s.valid}</th><th>{s.silent}</th><th>{s.afterRepair}</th>

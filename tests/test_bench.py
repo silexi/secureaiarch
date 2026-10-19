@@ -85,6 +85,17 @@ class Experiment(unittest.TestCase):
         self.assertEqual(len(res["examples"]), 1)
         self.assertIn("urgency", res["examples"][0]["error"])
 
+    def test_constrained_crash_disables_arm(self):
+        class Crashing(FakeClient):
+            def chat(self, model, messages, temperature, fmt=None, num_predict=400, seed=None):
+                if fmt is not None:
+                    raise RuntimeError("HTTP Error 500")
+                return super().chat(model, messages, temperature, fmt, num_predict, seed)
+        res = P.run(Crashing(), "fake", temperatures=(0.0,), repeats=1, progress=lambda m: None)
+        self.assertIn("HTTP Error 500", res["constrained_error"])
+        self.assertNotIn("constrained@0.0", res["summary"])
+        self.assertEqual(res["summary"]["prompt@0.0"]["n"], 24)
+
     def test_dataset_labels_are_schema_valid(self):
         for t in P.load_tickets():
             S.validate({"category": t["category"], "period": t["period"], "amount": t["amount"],

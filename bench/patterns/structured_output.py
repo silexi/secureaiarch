@@ -150,18 +150,33 @@ def examples(records: list[dict], limit: int = 3) -> list[dict]:
     return out
 
 
+def probe_constrained(client, model: str) -> str | None:
+    """Constrained decoding is a runtime feature; some model/runtime pairs crash on it.
+    Returns None if it works, otherwise the error, which is published instead of the arm."""
+    try:
+        client.chat(model, messages(load_tickets()[0]["text"]), 0.0, fmt=S.json_schema(), seed=1)
+        return None
+    except Exception as e:  # noqa: BLE001 - any runtime failure disables the arm
+        return f"{type(e).__name__}: {e}"
+
+
 def run(client, model: str, temperatures=(0.0, 0.7), repeats: int = 3, progress=print) -> dict:
     tickets = load_tickets()
     by_id = {t["id"]: t for t in tickets}
+    constrained_error = probe_constrained(client, model)
+    arms = ("prompt",) if constrained_error else ("prompt", "constrained")
+    if constrained_error:
+        progress(f"  {model}: constrained decoding unavailable ({constrained_error})")
     records = []
-    total = len(tickets) * len(temperatures) * repeats * 2
+    total = len(tickets) * len(temperatures) * repeats * len(arms)
     i = 0
     for temp in temperatures:
         for rep in range(repeats):
             for t in tickets:
-                for arm in ("prompt", "constrained"):
+                for arm in arms:
                     records.append(run_one(client, model, t, temp, seed=1000 + rep, arm=arm))
                     i += 1
                     if i % 20 == 0:
                         progress(f"  {model}: {i}/{total}")
-    return {"summary": summarize(records, by_id), "examples": examples(records), "records": records}
+    return {"summary": summarize(records, by_id), "examples": examples(records), "records": records,
+            "constrained_error": constrained_error}
