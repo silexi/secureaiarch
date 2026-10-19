@@ -1,0 +1,57 @@
+---
+import { t, type Lang } from "../i18n";
+import { resultsFor } from "../results";
+const { lang, pattern } = Astro.props as { lang: Lang; pattern: string };
+const s = t[lang];
+const r = resultsFor(pattern);
+const armName = (key: string) => {
+  const [arm] = key.split("@");
+  return arm === "constrained" ? (lang === "tr" ? "kısıtlı üretim" : "constrained decoding") : (lang === "tr" ? "prompt ile JSON" : "JSON via prompt");
+};
+const pct = (v: number | null | undefined) => (v === null || v === undefined ? "–" : `${v.toLocaleString(lang === "tr" ? "tr-TR" : "en-US")}%`);
+const date = (iso: string) => new Date(iso).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-GB", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
+const hw = r ? [r.machine, r.hardware?.chip, r.hardware?.memory_gb ? `${r.hardware.memory_gb} GB` : "", r.hardware?.os].filter(Boolean).join(" · ") : "";
+---
+{!r && <p class="notice">{s.noResults}</p>}
+{r && (
+  <>
+    <p class="meta">{s.machine}: {hw} · Ollama {r.ollama_version} · {s.generated}: {date(r.generated)} · commit <code>{r.git_sha}</code></p>
+    {r.models.map((m: any) => (
+      <>
+        <h3>{m.model} <span class="meta">{[m.info?.parameter_size, m.info?.quantization].filter(Boolean).join(" · ")}</span></h3>
+        {m.constrained_error && <p class="meta">{s.constrainedError} <code>{m.constrained_error}</code></p>}
+        <table>
+          <thead><tr>
+            <th>{s.arm}</th><th>{s.temp}</th><th>n</th><th>{s.valid}</th><th>{s.silent}</th><th>{s.afterRepair}</th>
+            <th>{s.accuracy}<br/><span class="meta">category / urgency / period / amount</span></th><th>{s.injection}</th><th>{s.latency}</th>
+          </tr></thead>
+          <tbody>
+            {Object.entries(m.summary).map(([k, v]: [string, any]) => (
+              <tr>
+                <td>{armName(k)}</td><td class="num">{k.split("@")[1]}</td><td class="num">{v.n}</td>
+                <td class="num">{pct(v.valid_pct)}</td><td class="num">{pct(v.silently_invalid_pct)}</td>
+                <td class="num">{v.repair ? pct(v.repair.valid_after_repair_pct) : "–"}</td>
+                <td class="num">{["category", "urgency", "period", "amount"].map((f) => pct(v.accuracy_pct[f])).join(" / ")}</td>
+                <td class="num">{pct(v.injection_followed_pct)}</td>
+                <td class="num">{v.latency_s.p50} / {v.latency_s.p95} s</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {m.examples?.length > 0 && (
+          <>
+            <h4>{s.failures}</h4>
+            {m.examples.map((e: any) => (
+              <details>
+                <summary>{e.ticket} · {s.temp} {e.temperature} · {e.repaired ? s.repairFixed : s.repairFailed}</summary>
+                <p class="meta">{s.rawOutput}</p><pre><code>{e.raw}</code></pre>
+                <p class="meta">{s.rejectedBecause}</p><pre><code>{e.error}</code></pre>
+                {e.repair_raw && (<><p class="meta">{s.repairOutput}</p><pre><code>{e.repair_raw}</code></pre></>)}
+              </details>
+            ))}
+          </>
+        )}
+      </>
+    ))}
+  </>
+)}

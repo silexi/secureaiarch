@@ -43,6 +43,7 @@ pre code { background: none; padding: 0; }
 .diagram .box { fill: var(--panel); stroke: var(--fg); stroke-width: 1.2; }
 .diagram .box.untrusted { stroke: var(--bad); stroke-dasharray: 4 3; }
 .diagram .box.control { stroke: var(--accent); stroke-width: 1.8; }
+.diagram .box.weak { stroke: var(--mute); stroke-dasharray: 2 4; }
 .diagram .box.sink { stroke: var(--ok); stroke-width: 1.6; }
 .diagram text { fill: var(--fg); font: 13px ui-sans-serif, system-ui, sans-serif; }
 .diagram text.small { fill: var(--mute); font-size: 11px; }

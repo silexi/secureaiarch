@@ -1,0 +1,34 @@
+---
+import type { Lang } from "../i18n";
+const { lang } = Astro.props as { lang: Lang };
+const L = {
+  en: { q: "Question", who: "user identity and clearance", index: "Index", indexNote: "every chunk carries its clearance", search: "Search", searchNote: "similarity AND clearance check", ctx: "Top-k allowed chunks", llm: "LLM", ans: "Answer", after: "Filter after search", afterNote: "fewer chunks reach the model", prompt: "Instruction in the prompt", promptNote: "not an access control", title: "Permission-filtered retrieval topology" },
+  tr: { q: "Soru", who: "kullanıcı kimliği ve yetkisi", index: "İndeks", indexNote: "her parça yetki etiketini taşır", search: "Arama", searchNote: "benzerlik VE yetki kontrolü", ctx: "Yetkili ilk k parça", llm: "LLM", ans: "Cevap", after: "Aramadan sonra filtre", afterNote: "modele daha az parça gider", prompt: "Prompt'ta talimat", promptNote: "erişim kontrolü değildir", title: "Yetki filtreli getirme topolojisi" },
+}[lang];
+---
+<figure class="diagram">
+<svg viewBox="0 0 450 400" role="img" aria-label={L.title}>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <rect class="box untrusted" x="20" y="10" width="220" height="48" rx="8"/>
+  <text x="130" y="31" text-anchor="middle">{L.q}</text><text class="small" x="130" y="48" text-anchor="middle">{L.who}</text>
+  <path class="edge" d="M130,58 V96"/>
+  <rect class="box control" x="20" y="98" width="220" height="52" rx="8"/>
+  <text x="130" y="120" text-anchor="middle">{L.search}</text><text class="small" x="130" y="138" text-anchor="middle">{L.searchNote}</text>
+  <rect class="box" x="290" y="98" width="150" height="52" rx="8"/>
+  <text x="365" y="120" text-anchor="middle">{L.index}</text><text class="small" x="365" y="138" text-anchor="middle">{L.indexNote}</text>
+  <path class="edge" d="M290,124 H242"/>
+  <path class="edge" d="M130,150 V188"/>
+  <rect class="box" x="20" y="190" width="220" height="40" rx="8"/>
+  <text x="130" y="215" text-anchor="middle">{L.ctx}</text>
+  <path class="edge" d="M130,230 V268"/>
+  <rect class="box" x="20" y="270" width="220" height="40" rx="8"/>
+  <text x="130" y="295" text-anchor="middle">{L.llm}</text>
+  <path class="edge" d="M130,310 V346"/>
+  <rect class="box sink" x="20" y="348" width="220" height="40" rx="8"/>
+  <text x="130" y="373" text-anchor="middle">{L.ans}</text>
+  <rect class="box weak" x="290" y="190" width="150" height="48" rx="8"/>
+  <text x="365" y="210" text-anchor="middle">{L.after}</text><text class="small" x="365" y="227" text-anchor="middle">{L.afterNote}</text>
+  <rect class="box weak" x="290" y="266" width="150" height="48" rx="8"/>
+  <text x="365" y="286" text-anchor="middle">{L.prompt}</text><text class="small" x="365" y="303" text-anchor="middle">{L.promptNote}</text>
+</svg>
+</figure>

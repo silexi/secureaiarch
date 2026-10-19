@@ -1,0 +1,63 @@
+---
+import { t, type Lang } from "../i18n";
+import { resultsFor } from "../results";
+import questions from "../../bench/data/rag_questions.jsonl?raw";
+const { lang, pattern } = Astro.props as { lang: Lang; pattern: string };
+const s = t[lang];
+const r = resultsFor(pattern);
+const qtext: Record<string, string> = Object.fromEntries(questions.split("\n").filter(Boolean).map((l: string) => { const q = JSON.parse(l); return [q.id, q.question]; }));
+const arms: Record<string, [string, string]> = {
+  none: ["No access check", "Erişim kontrolü yok"],
+  prompt: ["Instruction in the prompt", "Prompt'ta talimat"],
+  post: ["Filter after search", "Aramadan sonra filtre"],
+  pre: ["Filter inside search", "Arama içinde filtre"],
+};
+const arm = (k: string) => arms[k.split("@")[0]][lang === "tr" ? 1 : 0];
+const pct = (v: number | null | undefined) => (v === null || v === undefined ? "–" : `${v.toLocaleString(lang === "tr" ? "tr-TR" : "en-US")}%`);
+const date = (iso: string) => new Date(iso).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-GB", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
+const hw = r ? [r.machine, r.hardware?.chip, r.hardware?.memory_gb ? `${r.hardware.memory_gb} GB` : "", r.hardware?.os].filter(Boolean).join(" · ") : "";
+---
+{!r && <p class="notice">{s.noResults}</p>}
+{r && (
+  <>
+    <p class="meta">{s.machine}: {hw} · Ollama {r.ollama_version} · {s.embedModel}: {r.config.embed_model} · k = {r.config.k} · {s.generated}: {date(r.generated)} · commit <code>{r.git_sha}</code></p>
+    <h3>{s.retrievalTitle}</h3>
+    <p class="meta">{s.retrievalNote}</p>
+    <table>
+      <thead><tr><th>{s.arm}</th><th>{s.confInContext}</th><th>{s.answerInContext}</th><th>{s.chunksInContext}</th></tr></thead>
+      <tbody>
+        {Object.entries(r.retrieval).map(([k, v]: [string, any]) => (
+          <tr><td>{arm(k)}</td><td class="num">{pct(v.confidential_in_context_pct)}</td><td class="num">{pct(v.answer_in_context_pct)}</td><td class="num">{v.chunks_in_context_mean.toLocaleString(lang === "tr" ? "tr-TR" : "en-US")}</td></tr>
+        ))}
+      </tbody>
+    </table>
+    {r.models.map((m: any) => (
+      <>
+        <h3>{m.model} <span class="meta">{[m.info?.parameter_size, m.info?.quantization].filter(Boolean).join(" · ")}</span></h3>
+        <table>
+          <thead><tr><th>{s.arm}</th><th>n</th><th>{s.leakAll}</th><th>{s.leakRestricted}</th><th>{s.allowedCorrect}</th><th>{s.notFound}</th><th>{s.latency}</th></tr></thead>
+          <tbody>
+            {Object.entries(m.summary).map(([k, v]: [string, any]) => (
+              <tr>
+                <td>{arm(k)}</td><td class="num">{v.n}</td><td class="num">{pct(v.leak_pct)}</td><td class="num">{pct(v.leak_restricted_pct)}</td>
+                <td class="num">{pct(v.allowed_correct_pct)}</td><td class="num">{pct(v.restricted_not_found_pct)}</td><td class="num">{v.latency_s.p50} / {v.latency_s.p95} s</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {m.examples?.length > 0 && (
+          <>
+            <h4>{s.leakExamples}</h4>
+            {m.examples.map((e: any) => (
+              <details>
+                <summary>{e.question} · {qtext[e.question]}</summary>
+                <p class="meta">{s.modelAnswer}</p><pre><code>{e.answer}</code></pre>
+                <p class="meta">{s.leakedValues}: <code>{e.leaked.join(", ")}</code></p>
+              </details>
+            ))}
+          </>
+        )}
+      </>
+    ))}
+  </>
+)}
