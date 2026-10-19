@@ -1,0 +1,31 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../layouts/Base.astro";
+import Results from "./Results.astro";
+import StructuredOutput from "../diagrams/StructuredOutput.astro";
+import { t, type Lang } from "../i18n";
+import { resultsFor } from "../results";
+const { lang, slug } = Astro.props as { lang: Lang; slug: string };
+const s = t[lang];
+const entry = (await getCollection("patterns")).find((e) => e.id === `${slug}/${lang}`)!;
+const { Content } = await render(entry);
+const diagrams: Record<string, any> = { "structured-output": StructuredOutput };
+const Diagram = diagrams[slug];
+const tested = !!resultsFor(entry.data.results);
+---
+<Base lang={lang} title={entry.data.title} description={entry.data.summary} path={`/${lang}/patterns/${slug}`} noindex={!tested}>
+  <p class="meta"><a href={`/${lang}`}>{s.patterns}</a> · <span class:list={["badge", { ok: tested }]}>{tested ? s.tested : s.draft}</span></p>
+  <h1>{entry.data.title}</h1>
+  <p class="lead">{entry.data.summary}</p>
+  <p class="thesis"><strong>{s.thesis}:</strong> {entry.data.thesis}</p>
+  {Diagram && (<><h2>{s.topology}</h2><Diagram lang={lang} /></>)}
+  <Content />
+  <h2>{s.results}</h2>
+  <Results lang={lang} pattern={entry.data.results} />
+  <h2>{s.reproduce}</h2>
+  <pre><code>{`git clone https://github.com/silexi/secureaiarch
+cd secureaiarch
+ollama pull qwen2.5:3b
+python3 -m bench run ${entry.data.results} --models qwen2.5:3b`}</code></pre>
+  <p class="meta">{s.source}: <a href={entry.data.lab}>{entry.data.lab.replace("https://github.com/", "")}</a></p>
+</Base>

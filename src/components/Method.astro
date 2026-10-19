@@ -1,0 +1,54 @@
+---
+import Base from "../layouts/Base.astro";
+import type { Lang } from "../i18n";
+const { lang } = Astro.props as { lang: Lang };
+---
+<Base lang={lang} title={lang === "en" ? "How patterns are tested" : "Pattern'ler nasıl test ediliyor"} path={`/${lang}/method`}>
+{lang === "en" ? (
+  <>
+    <h1>How patterns are tested</h1>
+    <p class="lead">Every number on this site is produced by the test harness in the repository, on a local machine, and committed with the code that produced it.</p>
+    <h2>Setup</h2>
+    <ul>
+      <li>Models run locally through <a href="https://ollama.com">Ollama</a>. No hosted API is involved.</li>
+      <li>Each result file records the machine, chip, memory, operating system, Ollama version, model digest and quantization, run date and the git commit of the harness.</li>
+      <li>Inputs are synthetic and labelled by hand. They are written to contain the cases that break pipelines in practice: localized number formats, relative dates, missing fields, instructions embedded in the input.</li>
+      <li>Each input is run under several arms (for example: no control, validation, validation plus repair, constrained decoding) with fixed seeds, at more than one temperature, and repeated.</li>
+    </ul>
+    <h2>What is published</h2>
+    <ul>
+      <li><code>results/&lt;pattern&gt;.json</code>: the summary shown on the pattern page.</li>
+      <li><code>results/raw/&lt;pattern&gt;/&lt;model&gt;.jsonl</code>: every request and reply, so any number can be traced to the outputs behind it.</li>
+    </ul>
+    <h2>Limits</h2>
+    <ul>
+      <li>Results hold for the model, quantization, runtime version and hardware listed. A different combination can behave differently; that is why the harness is published.</li>
+      <li>The input sets are small and designed to expose failure modes. They show whether a control works and roughly how much it costs, not production error rates.</li>
+      <li>A pattern without committed results is marked as a draft and is not indexed.</li>
+    </ul>
+  </>
+) : (
+  <>
+    <h1>Pattern'ler nasıl test ediliyor</h1>
+    <p class="lead">Bu sitedeki her sayı repodaki test aracıyla, yerel bir makinede üretilir ve onu üreten kodla birlikte repoya girer.</p>
+    <h2>Kurulum</h2>
+    <ul>
+      <li>Modeller yerelde <a href="https://ollama.com">Ollama</a> ile çalışır. Barındırılan bir API kullanılmaz.</li>
+      <li>Her sonuç dosyası makineyi, işlemciyi, belleği, işletim sistemini, Ollama sürümünü, model özetini ve quantization'ı, çalıştırma tarihini ve test aracının git commit'ini kaydeder.</li>
+      <li>Girdiler sentetiktir ve elle etiketlenmiştir. Pratikte hattı bozan durumları içerecek şekilde yazılır: yerel sayı biçimleri, göreli tarihler, eksik alanlar, girdinin içine gömülmüş talimatlar.</li>
+      <li>Her girdi birden fazla kolda (örneğin: kontrolsüz, doğrulama, doğrulama ve onarım, kısıtlı üretim), sabit seed ile, birden fazla sıcaklıkta ve tekrarlı çalıştırılır.</li>
+    </ul>
+    <h2>Ne yayımlanır</h2>
+    <ul>
+      <li><code>results/&lt;pattern&gt;.json</code>: pattern sayfasında görünen özet.</li>
+      <li><code>results/raw/&lt;pattern&gt;/&lt;model&gt;.jsonl</code>: her istek ve cevap. Her sayı arkasındaki çıktılara kadar izlenebilir.</li>
+    </ul>
+    <h2>Sınırlar</h2>
+    <ul>
+      <li>Sonuçlar listelenen model, quantization, çalışma ortamı sürümü ve donanım için geçerlidir. Farklı bir kombinasyon farklı davranabilir; test aracının yayımlanma sebebi bu.</li>
+      <li>Girdi setleri küçüktür ve hata modlarını ortaya çıkarmak için tasarlanmıştır. Bir kontrolün işe yarayıp yaramadığını ve yaklaşık maliyetini gösterir, üretim ortamı hata oranlarını değil.</li>
+      <li>Sonucu repoya girmemiş bir pattern taslak olarak işaretlenir ve indekslenmez.</li>
+    </ul>
+  </>
+)}
+</Base>

@@ -1,0 +1,27 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import { t, type Lang } from "../i18n";
+import { resultsFor } from "../results";
+const { lang } = Astro.props as { lang: Lang };
+const s = t[lang];
+const list = (await getCollection("patterns")).filter((e) => e.id.endsWith(`/${lang}`)).sort((a, b) => a.data.order - b.data.order);
+---
+<Base lang={lang} path={`/${lang}`}>
+  <h1>{s.siteTitle}</h1>
+  <p class="lead">{s.tagline}</p>
+  <p>{s.intro} <a href={`/${lang}/method`}>{s.method}</a>.</p>
+  <h2>{s.patterns}</h2>
+  <ul class="cards">
+    {list.map((e) => {
+      const slug = e.id.split("/")[0];
+      const tested = !!resultsFor(e.data.results);
+      return (
+        <li>
+          <a href={`/${lang}/patterns/${slug}`}>{e.data.title}</a> <span class:list={["badge", { ok: tested }]}>{tested ? s.tested : s.draft}</span>
+          <p>{e.data.summary}</p>
+        </li>
+      );
+    })}
+  </ul>
+</Base>

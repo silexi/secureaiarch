@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://secureaiarch.com/sitemap.txt

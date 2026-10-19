@@ -1,0 +1,38 @@
+---
+import { t, other, type Lang } from "../i18n";
+import "../styles.css";
+interface Props { lang: Lang; title?: string; description?: string; path: string; altPath?: string; noindex?: boolean }
+const { lang, title, description, path, altPath, noindex } = Astro.props;
+const s = t[lang];
+const alt = other(lang);
+const altHref = altPath ?? path.replace(/^\/(en|tr)/, `/${alt}`);
+const full = title ? `${title} · ${s.siteTitle}` : s.siteTitle;
+const site = "https://secureaiarch.com";
+---
+<!doctype html>
+<html lang={lang}>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{full}</title>
+<meta name="description" content={description ?? s.tagline}>
+<link rel="canonical" href={site + path}>
+<link rel="alternate" hreflang={lang} href={site + path}>
+<link rel="alternate" hreflang={alt} href={site + altHref}>
+<link rel="alternate" hreflang="x-default" href={site + path.replace(/^\/(en|tr)/, "/en")}>
+{noindex && <meta name="robots" content="noindex">}
+</head>
+<body>
+<header class="top">
+  <div class="wrap row">
+    <a class="brand" href={`/${lang}`}>{s.siteTitle}</a>
+    <nav>
+      <a href={`/${lang}/method`}>{s.method}</a>
+      <a href={altHref} hreflang={alt} lang={alt}>{s.langName}</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap"><slot /></main>
+<footer class="wrap foot"><p>{s.footer}</p></footer>
+</body>
+</html>

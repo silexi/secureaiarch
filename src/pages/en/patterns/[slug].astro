@@ -1,0 +1,8 @@
+---
+import { getCollection } from "astro:content";
+import PatternPage from "../../../components/PatternPage.astro";
+export async function getStaticPaths() {
+  return (await getCollection("patterns")).filter((e) => e.id.endsWith("/en")).map((e) => ({ params: { slug: e.id.split("/")[0] } }));
+}
+---
+<PatternPage lang="en" slug={Astro.params.slug} />

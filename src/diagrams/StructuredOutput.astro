@@ -1,0 +1,34 @@
+---
+import type { Lang } from "../i18n";
+const { lang } = Astro.props as { lang: Lang };
+const L = {
+  en: { ticket: "Ticket text", untrusted: "untrusted input", llm: "LLM", llmNote: "optional: constrained decoding", parse: "Parse JSON", validate: "Validate schema", validateNote: "types, enums, ranges, no extra fields", sink: "System of record", repair: "Repair round", repairNote: "max 1, temp 0", human: "Human queue", fail: "invalid", ok: "valid", still: "still invalid", title: "Structured output topology" },
+  tr: { ticket: "Talep metni", untrusted: "güvenilmeyen girdi", llm: "LLM", llmNote: "isteğe bağlı: kısıtlı üretim", parse: "JSON ayrıştır", validate: "Şema doğrula", validateNote: "tip, enum, aralık, fazla alan yok", sink: "Kayıt sistemi", repair: "Onarım turu", repairNote: "en fazla 1, sıc. 0", human: "İnsan kuyruğu", fail: "geçersiz", ok: "uygun", still: "hâlâ geçersiz", title: "Yapılandırılmış çıktı topolojisi" },
+}[lang];
+---
+<figure class="diagram">
+<svg viewBox="0 0 430 400" role="img" aria-label={L.title}>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <rect class="box untrusted" x="30" y="10" width="210" height="48" rx="8"/>
+  <text x="135" y="31" text-anchor="middle">{L.ticket}</text><text class="small" x="135" y="48" text-anchor="middle">{L.untrusted}</text>
+  <path class="edge" d="M135,58 V86"/>
+  <rect class="box" x="30" y="88" width="210" height="48" rx="8"/>
+  <text x="135" y="109" text-anchor="middle">{L.llm}</text><text class="small" x="135" y="126" text-anchor="middle">{L.llmNote}</text>
+  <path class="edge" d="M135,136 V164"/>
+  <rect class="box" x="30" y="166" width="210" height="40" rx="8"/>
+  <text x="135" y="191" text-anchor="middle">{L.parse}</text>
+  <path class="edge" d="M135,206 V234"/>
+  <rect class="box control" x="30" y="236" width="210" height="48" rx="8"/>
+  <text x="135" y="257" text-anchor="middle">{L.validate}</text><text class="small" x="135" y="274" text-anchor="middle">{L.validateNote}</text>
+  <path class="edge" d="M135,284 V338"/><text class="small" x="143" y="316">{L.ok}</text>
+  <rect class="box sink" x="30" y="340" width="210" height="44" rx="8"/>
+  <text x="135" y="367" text-anchor="middle">{L.sink}</text>
+  <path class="edge fail" d="M240,252 H296"/><text class="small" x="246" y="245">{L.fail}</text>
+  <rect class="box control" x="298" y="232" width="122" height="52" rx="8"/>
+  <text x="359" y="254" text-anchor="middle">{L.repair}</text><text class="small" x="359" y="271" text-anchor="middle">{L.repairNote}</text>
+  <path class="edge" d="M298,274 H242"/>
+  <path class="edge fail" d="M359,284 V338"/><text class="small" x="366" y="316">{L.still}</text>
+  <rect class="box" x="298" y="340" width="122" height="44" rx="8"/>
+  <text x="359" y="367" text-anchor="middle">{L.human}</text>
+</svg>
+</figure>
