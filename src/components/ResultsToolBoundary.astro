@@ -39,7 +39,7 @@ const hw = r ? [r.machine, r.hardware?.chip, r.hardware?.memory_gb ? `${r.hardwa
               <tbody>
                 {Object.entries(m.summary).map(([k, v]: [string, any]) => (
                   <tr>
-                    <td>{arm(k)} <span class="meta">t={k.split("@")[1]}</span></td><td class="num">{v.n}</td><td class="num">{pct(v.attack_success_pct)}</td>
+                    <td>{arm(k)}{" "}<span class="meta">t={k.split("@")[1]}</span></td><td class="num">{v.n}</td><td class="num">{pct(v.attack_success_pct)}</td>
                     <td class="num">{pct(v.attack_escalated_pct)}</td><td class="num">{pct(v.benign_completed_pct)}</td>
                     <td class="num">{v.unknown_field_writes ?? "–"}</td><td class="num">{pct(v.no_tool_call_pct)}</td><td class="num">{v.latency_s.p50} / {v.latency_s.p95} s</td>
                   </tr>
@@ -52,7 +52,7 @@ const hw = r ? [r.machine, r.hardware?.chip, r.hardware?.memory_gb ? `${r.hardwa
                 <thead><tr><th>{s.arm}</th>{Object.keys(types).map((k) => <th>{L(types[k])}</th>)}</tr></thead>
                 <tbody>
                   {Object.entries(m.summary).map(([k, v]: [string, any]) => (
-                    <tr><td>{arm(k)} <span class="meta">t={k.split("@")[1]}</span></td>{Object.keys(types).map((ty) => <td class="num">{pct(v.attack_success_by_type?.[ty])}</td>)}</tr>
+                    <tr><td>{arm(k)}{" "}<span class="meta">t={k.split("@")[1]}</span></td>{Object.keys(types).map((ty) => <td class="num">{pct(v.attack_success_by_type?.[ty])}</td>)}</tr>
                   ))}
                 </tbody>
               </table>
