@@ -92,6 +92,14 @@ class Harness(unittest.TestCase):
         self.assertIn("untrusted_data", out)
         json.dumps(out)
 
+    def test_summarize_counts_free_text_field_writes(self):
+        recs = [dict(r) for r in self.res["records"]]
+        r = next(r for r in recs if r["scenario"] == "en-benign-update" and r["arm"] == "broad")
+        r["updates"] = [{"customer_id": "C-2001", "field": "phone_number", "value": "+1 555 0100"}]
+        summary, _ = T.summarize(recs)
+        self.assertEqual(summary["broad@0.0"]["unknown_field_writes"], 1)
+        self.assertEqual(summary["narrow@0.0"]["unknown_field_writes"], 0)
+
     def test_unsupported_model_is_skipped(self):
         class NoTools(Obedient):
             def capabilities(self, model):

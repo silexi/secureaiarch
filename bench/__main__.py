@@ -27,7 +27,12 @@ def main() -> int:
     r.add_argument("--repeats", type=int, default=3)
     r.add_argument("--temperatures", default="0.0,0.7")
     r.add_argument("--out", default=str(ROOT / "results"))
+    sm = sub.add_parser("summarize", help="recompute summaries from the saved raw records")
+    sm.add_argument("pattern", choices=sorted(PATTERNS))
+    sm.add_argument("--out", default=str(ROOT / "results"))
     args = ap.parse_args()
+    if args.cmd == "summarize":
+        return summarize(args.pattern, Path(args.out))
 
     client = Client()
     version = client.version()
@@ -64,6 +69,26 @@ def main() -> int:
                                  "constrained_error": res.get("constrained_error")})
     (out / f"{args.pattern}.json").write_text(json.dumps(result, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"wrote {out / (args.pattern + '.json')}", file=sys.stderr)
+    return 0
+
+
+def summarize(pattern: str, out: Path) -> int:
+    """Rebuilds each model's summary and examples from results/raw/<pattern>/*.jsonl. The run
+    metadata (machine, versions, commit of the run) is kept; the summarising commit is added."""
+    mod = PATTERNS[pattern]
+    if not hasattr(mod, "summarize"):
+        print(f"{pattern} has no summarize()", file=sys.stderr)
+        return 1
+    path = out / f"{pattern}.json"
+    result = json.loads(path.read_text(encoding="utf-8"))
+    for m in result["models"]:
+        safe = re.sub(r"[^A-Za-z0-9._-]", "_", m["model"])
+        raw = out / "raw" / pattern / f"{safe}.jsonl"
+        records = [json.loads(line) for line in raw.read_text(encoding="utf-8").splitlines() if line.strip()]
+        m["summary"], m["examples"] = mod.summarize(records)
+    result["summarized_git_sha"] = env.git_sha()
+    path.write_text(json.dumps(result, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    print(f"rewrote {path}", file=sys.stderr)
     return 0
 
 
