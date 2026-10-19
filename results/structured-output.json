@@ -1,0 +1,284 @@
+{
+ "pattern": "structured-output",
+ "generated": "2026-10-19T08:51:37Z",
+ "git_sha": "13c19da",
+ "machine": "Mac mini M4 Pro 64GB",
+ "hardware": {
+  "os": "macOS 26.2",
+  "arch": "arm64",
+  "model": "",
+  "chip": "",
+  "memory_gb": null
+ },
+ "ollama_version": "0.17.7",
+ "config": {
+  "repeats": 3,
+  "temperatures": [
+   0.0,
+   0.7
+  ]
+ },
+ "models": [
+  {
+   "model": "qwen2.5:1.5b",
+   "info": {
+    "digest": "65ec06548149",
+    "parameter_size": "1.5B",
+    "quantization": "Q4_K_M",
+    "family": "qwen2"
+   },
+   "summary": {
+    "prompt@0.0": {
+     "n": 72,
+     "parsed_pct": 100.0,
+     "bare_json_pct": 100.0,
+     "valid_pct": 100.0,
+     "silently_invalid_pct": 0.0,
+     "accuracy_pct": {
+      "category": 91.7,
+      "urgency": 70.8,
+      "period": 79.2,
+      "amount": 100.0
+     },
+     "injection_followed_pct": 50.0,
+     "latency_s": {
+      "p50": 0.37,
+      "p95": 0.45
+     },
+     "output_tokens_mean": 51.5,
+     "repair": {
+      "attempted": 0,
+      "fixed": 0,
+      "valid_after_repair_pct": 100.0,
+      "extra_seconds_mean": 0
+     }
+    },
+    "prompt@0.7": {
+     "n": 72,
+     "parsed_pct": 100.0,
+     "bare_json_pct": 100.0,
+     "valid_pct": 98.6,
+     "silently_invalid_pct": 1.4,
+     "accuracy_pct": {
+      "category": 91.5,
+      "urgency": 67.6,
+      "period": 84.5,
+      "amount": 100.0
+     },
+     "injection_followed_pct": 50.0,
+     "latency_s": {
+      "p50": 0.36,
+      "p95": 0.45
+     },
+     "output_tokens_mean": 51.3,
+     "repair": {
+      "attempted": 1,
+      "fixed": 0,
+      "valid_after_repair_pct": 98.6,
+      "extra_seconds_mean": 0.5
+     }
+    }
+   },
+   "examples": [
+    {
+     "ticket": "tr-10",
+     "temperature": 0.7,
+     "raw": "{\n  \"category\": \"technical_issue\",\n  \"period\": \"2026-10-12\",\n  \"amount\": null,\n  \"currency\": null,\n  \"urgency\": \"high\",\n  \"confidence\": 0.95\n}",
+     "error": "'period' value '2026-10-12' does not match ^\\d{4}-\\d{2}$",
+     "repair_raw": "{\n  \"category\": \"technical_issue\",\n  \"period\": \"2026-10-12\",\n  \"amount\": null,\n  \"currency\": null,\n  \"urgency\": \"high\",\n  \"confidence\": 0.95\n}",
+     "repaired": false
+    }
+   ],
+   "constrained_error": "request failed: HTTPError: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "model": "qwen3.5:4b",
+   "info": {
+    "digest": "2a654d98e6fb",
+    "parameter_size": "4.7B",
+    "quantization": "Q4_K_M",
+    "family": "qwen35"
+   },
+   "summary": {
+    "prompt@0.0": {
+     "n": 72,
+     "parsed_pct": 100.0,
+     "bare_json_pct": 100.0,
+     "valid_pct": 100.0,
+     "silently_invalid_pct": 0.0,
+     "accuracy_pct": {
+      "category": 100.0,
+      "urgency": 87.5,
+      "period": 79.2,
+      "amount": 100.0
+     },
+     "injection_followed_pct": 0.0,
+     "latency_s": {
+      "p50": 2.16,
+      "p95": 2.58
+     },
+     "output_tokens_mean": 57.0,
+     "repair": {
+      "attempted": 0,
+      "fixed": 0,
+      "valid_after_repair_pct": 100.0,
+      "extra_seconds_mean": 0
+     }
+    },
+    "prompt@0.7": {
+     "n": 72,
+     "parsed_pct": 100.0,
+     "bare_json_pct": 100.0,
+     "valid_pct": 100.0,
+     "silently_invalid_pct": 0.0,
+     "accuracy_pct": {
+      "category": 100.0,
+      "urgency": 88.9,
+      "period": 84.7,
+      "amount": 97.2
+     },
+     "injection_followed_pct": 0.0,
+     "latency_s": {
+      "p50": 2.14,
+      "p95": 2.55
+     },
+     "output_tokens_mean": 57.0,
+     "repair": {
+      "attempted": 0,
+      "fixed": 0,
+      "valid_after_repair_pct": 100.0,
+      "extra_seconds_mean": 0
+     }
+    }
+   },
+   "examples": [],
+   "constrained_error": "schema ignored: the runtime returned unconstrained output: The sky is clear and sunny with a gentle breeze."
+  },
+  {
+   "model": "qwen3:8b",
+   "info": {
+    "digest": "500a1f067a9f",
+    "parameter_size": "8.2B",
+    "quantization": "Q4_K_M",
+    "family": "qwen3"
+   },
+   "summary": {
+    "prompt@0.0": {
+     "n": 72,
+     "parsed_pct": 100.0,
+     "bare_json_pct": 100.0,
+     "valid_pct": 100.0,
+     "silently_invalid_pct": 0.0,
+     "accuracy_pct": {
+      "category": 95.8,
+      "urgency": 91.7,
+      "period": 91.7,
+      "amount": 100.0
+     },
+     "injection_followed_pct": 0.0,
+     "latency_s": {
+      "p50": 1.25,
+      "p95": 1.63
+     },
+     "output_tokens_mean": 51.1,
+     "repair": {
+      "attempted": 0,
+      "fixed": 0,
+      "valid_after_repair_pct": 100.0,
+      "extra_seconds_mean": 0
+     }
+    },
+    "prompt@0.7": {
+     "n": 72,
+     "parsed_pct": 100.0,
+     "bare_json_pct": 100.0,
+     "valid_pct": 100.0,
+     "silently_invalid_pct": 0.0,
+     "accuracy_pct": {
+      "category": 94.4,
+      "urgency": 91.7,
+      "period": 90.3,
+      "amount": 100.0
+     },
+     "injection_followed_pct": 16.7,
+     "latency_s": {
+      "p50": 1.25,
+      "p95": 1.6
+     },
+     "output_tokens_mean": 51.2,
+     "repair": {
+      "attempted": 0,
+      "fixed": 0,
+      "valid_after_repair_pct": 100.0,
+      "extra_seconds_mean": 0
+     }
+    }
+   },
+   "examples": [],
+   "constrained_error": "request failed: HTTPError: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "model": "qwen3.6:35b-a3b-q8_0",
+   "info": {
+    "digest": "0218f872e86b",
+    "parameter_size": "36.0B",
+    "quantization": "Q8_0",
+    "family": "qwen35moe"
+   },
+   "summary": {
+    "prompt@0.0": {
+     "n": 72,
+     "parsed_pct": 100.0,
+     "bare_json_pct": 100.0,
+     "valid_pct": 100.0,
+     "silently_invalid_pct": 0.0,
+     "accuracy_pct": {
+      "category": 100.0,
+      "urgency": 75.0,
+      "period": 91.7,
+      "amount": 91.7
+     },
+     "injection_followed_pct": 0.0,
+     "latency_s": {
+      "p50": 2.82,
+      "p95": 3.38
+     },
+     "output_tokens_mean": 56.2,
+     "repair": {
+      "attempted": 0,
+      "fixed": 0,
+      "valid_after_repair_pct": 100.0,
+      "extra_seconds_mean": 0
+     }
+    },
+    "prompt@0.7": {
+     "n": 72,
+     "parsed_pct": 100.0,
+     "bare_json_pct": 100.0,
+     "valid_pct": 100.0,
+     "silently_invalid_pct": 0.0,
+     "accuracy_pct": {
+      "category": 100.0,
+      "urgency": 79.2,
+      "period": 91.7,
+      "amount": 93.1
+     },
+     "injection_followed_pct": 0.0,
+     "latency_s": {
+      "p50": 2.79,
+      "p95": 3.36
+     },
+     "output_tokens_mean": 56.1,
+     "repair": {
+      "attempted": 0,
+      "fixed": 0,
+      "valid_after_repair_pct": 100.0,
+      "extra_seconds_mean": 0
+     }
+    }
+   },
+   "examples": [],
+   "constrained_error": "schema ignored: the runtime returned unconstrained output: The sun is shining brightly today."
+  }
+ ]
+}
