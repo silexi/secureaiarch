@@ -50,6 +50,9 @@ class FakeClient:
 
     def chat(self, model, messages, temperature, fmt=None, num_predict=400, seed=None):
         last = messages[-1]["content"]
+        if "about the weather" in last:  # constrained-decoding probe: honour the schema
+            text = json.dumps(self._answer(next(iter(self.tickets.values())))) if fmt else "It is sunny."
+            return {"text": text, "prompt_tokens": 1, "output_tokens": 1, "seconds": 0.1}
         if "failed schema validation" in last:
             t = self.cur
             text = json.dumps(self._answer(t))
@@ -92,9 +95,19 @@ class Experiment(unittest.TestCase):
                     raise RuntimeError("HTTP Error 500")
                 return super().chat(model, messages, temperature, fmt, num_predict, seed)
         res = P.run(Crashing(), "fake", temperatures=(0.0,), repeats=1, progress=lambda m: None)
-        self.assertIn("HTTP Error 500", res["constrained_error"])
+        self.assertIn("request failed", res["constrained_error"])
         self.assertNotIn("constrained@0.0", res["summary"])
         self.assertEqual(res["summary"]["prompt@0.0"]["n"], 24)
+
+    def test_ignored_schema_disables_arm(self):
+        class Ignoring(FakeClient):
+            def chat(self, model, messages, temperature, fmt=None, num_predict=400, seed=None):
+                if "about the weather" in messages[-1]["content"]:
+                    return {"text": "It is sunny.", "prompt_tokens": 1, "output_tokens": 1, "seconds": 0.1}
+                return super().chat(model, messages, temperature, fmt, num_predict, seed)
+        res = P.run(Ignoring(), "fake", temperatures=(0.0,), repeats=1, progress=lambda m: None)
+        self.assertIn("schema ignored", res["constrained_error"])
+        self.assertNotIn("constrained@0.0", res["summary"])
 
     def test_dataset_labels_are_schema_valid(self):
         for t in P.load_tickets():

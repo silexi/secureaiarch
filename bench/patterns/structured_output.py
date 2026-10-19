@@ -151,13 +151,19 @@ def examples(records: list[dict], limit: int = 3) -> list[dict]:
 
 
 def probe_constrained(client, model: str) -> str | None:
-    """Constrained decoding is a runtime feature; some model/runtime pairs crash on it.
-    Returns None if it works, otherwise the error, which is published instead of the arm."""
+    """Constrained decoding is a runtime feature. Some model/runtime pairs crash on it and some
+    silently ignore it. The probe asks for plain text while passing the schema: if the reply is not
+    schema-valid JSON, the constraint was not applied. Returns None only when it was."""
+    plain = [{"role": "user", "content": "Write one sentence about the weather. Plain text, no JSON."}]
     try:
-        client.chat(model, messages(load_tickets()[0]["text"]), 0.0, fmt=S.json_schema(), seed=1)
-        return None
+        r = client.chat(model, plain, 0.0, fmt=S.json_schema(), seed=1)
     except Exception as e:  # noqa: BLE001 - any runtime failure disables the arm
-        return f"{type(e).__name__}: {e}"
+        return f"request failed: {type(e).__name__}: {e}"
+    try:
+        S.validate(S.extract_json(r["text"]))
+        return None
+    except S.SchemaError:
+        return "schema ignored: the runtime returned unconstrained output: " + r["text"][:120].replace("\n", " ")
 
 
 def run(client, model: str, temperatures=(0.0, 0.7), repeats: int = 3, progress=print) -> dict:
