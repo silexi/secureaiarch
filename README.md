@@ -33,3 +33,10 @@ npm ci
 npm test        # python unit tests + build + build checks
 npm run dev
 ```
+
+## License
+
+- Code (`bench/`, `scripts/`, `tests/`, `www/`, and `src/` except `src/content/` and `src/diagrams/`): MIT, see [LICENSE](LICENSE).
+- Pattern text (`src/content/`), diagrams (`src/diagrams/`) and benchmark results (`results/`): CC BY 4.0, see [LICENSE-CONTENT](LICENSE-CONTENT).
+
+Copyright (c) 2026 Bartu Kılıç. Contributions require a contributor license agreement.

@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "test": "python3 -m unittest discover -s tests && astro build && node scripts/check-build.mjs"
+    "test": "python3 -m unittest discover -s tests && node tests/www.test.mjs && astro build && node scripts/check-build.mjs"
   },
   "dependencies": {
     "astro": "^5"

@@ -1,5 +1,5 @@
 {
-  // Static site. The apex is served here; www.secureaiarch.com stays on the domain-placeholder Worker, which redirects it to the apex.
+  // Static site. The apex is served here; www.secureaiarch.com is served by the redirect Worker in www/.
   "name": "secureaiarch",
   "compatibility_date": "2026-10-01",
   "workers_dev": true,

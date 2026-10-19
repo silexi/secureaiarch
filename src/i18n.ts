@@ -4,6 +4,7 @@ export const langs: Lang[] = ["en", "tr"];
 export const t = {
   en: {
     siteTitle: "Secure AI Architecture",
+    license: "Code MIT, text and results CC BY 4.0",
     tagline: "Reference architectures for on-prem LLM, RAG and agent systems, tested on local hardware.",
     intro: "Each pattern is a control you put around a model, with the failure it prevents measured on a local machine. The numbers come from a test harness in the repository and are regenerated, not typed in.",
     patterns: "Patterns",
@@ -43,6 +44,7 @@ export const t = {
   },
   tr: {
     siteTitle: "Secure AI Architecture",
+    license: "Kod MIT, metin ve sonuçlar CC BY 4.0",
     tagline: "On-prem LLM, RAG ve agent sistemleri için yerel donanımda test edilmiş referans mimariler.",
     intro: "Her pattern, bir modelin etrafına konan bir kontroldür ve önlediği hata yerel bir makinede ölçülür. Sayılar repodaki test aracından gelir, elle yazılmaz, yeniden üretilir.",
     patterns: "Pattern'ler",
