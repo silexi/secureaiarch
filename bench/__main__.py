@@ -46,7 +46,7 @@ def main() -> int:
         "machine": env.label(),
         "hardware": env.hardware(),
         "ollama_version": version,
-        "config": {"repeats": args.repeats, "temperatures": list(temps)},
+        "config": {"repeats": args.repeats, "temperatures": list(temps), **getattr(mod, "CONFIG", {})},
         "models": [],
     }
     for model in [m.strip() for m in args.models.split(",") if m.strip()]:
@@ -57,6 +57,8 @@ def main() -> int:
         with open(out / "raw" / args.pattern / f"{safe}.jsonl", "w", encoding="utf-8") as f:
             for rec in res["records"]:
                 f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        if res.get("retrieval") is not None:
+            result["retrieval"] = res["retrieval"]  # model independent
         result["models"].append({"model": model, "info": client.model_info(model),
                                  "summary": res["summary"], "examples": res["examples"],
                                  "constrained_error": res.get("constrained_error")})

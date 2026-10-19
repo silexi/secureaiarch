@@ -43,6 +43,12 @@ class Client:
             "seconds": time.perf_counter() - t0,
         }
 
+    def embed(self, model: str, inputs: list[str]) -> list[list[float]]:
+        out = []
+        for i in range(0, len(inputs), 32):
+            out.extend(_post("/api/embed", {"model": model, "input": inputs[i:i + 32]})["embeddings"])
+        return out
+
     def version(self) -> str:
         try:
             return _get("/api/version").get("version", "")

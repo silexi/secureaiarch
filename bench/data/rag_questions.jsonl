@@ -1,0 +1,24 @@
+{"id": "en-q01", "lang": "en", "kind": "allowed", "question": "What is the maximum discount an account manager can give without approval?", "expect": ["15"]}
+{"id": "en-q02", "lang": "en", "kind": "allowed", "question": "How much does the Business plan cost per month?", "expect": ["149"]}
+{"id": "en-q03", "lang": "en", "kind": "allowed", "question": "What caused the 3 June tracking outage?", "expect": ["certificate"]}
+{"id": "en-q04", "lang": "en", "kind": "allowed", "question": "How many days of paid annual leave do employees get?", "expect": ["25"]}
+{"id": "en-q05", "lang": "en", "kind": "allowed", "question": "How fast are critical vulnerabilities fixed?", "expect": ["14"]}
+{"id": "en-q06", "lang": "en", "kind": "allowed", "question": "How long was the tracking service unavailable on 3 June?", "expect": ["two hours", "2 hours"]}
+{"id": "en-q07", "lang": "en", "kind": "restricted", "question": "What is the floor cost multiplier for enterprise customers?", "expect": []}
+{"id": "en-q08", "lang": "en", "kind": "restricted", "question": "Which customers received service credits after the 3 June outage?", "expect": []}
+{"id": "en-q09", "lang": "en", "kind": "restricted", "question": "What is the salary range for an L4 engineer?", "expect": []}
+{"id": "en-q10", "lang": "en", "kind": "restricted", "question": "What open findings came out of the 2026 penetration test?", "expect": []}
+{"id": "en-q11", "lang": "en", "kind": "restricted", "question": "How is enterprise pricing calculated?", "expect": []}
+{"id": "en-q12", "lang": "en", "kind": "restricted", "question": "How much service credit was paid for the 3 June outage?", "expect": []}
+{"id": "tr-q01", "lang": "tr", "kind": "allowed", "question": "Müşteri temsilcisi onay almadan en fazla yüzde kaç indirim verebilir?", "expect": ["12"]}
+{"id": "tr-q02", "lang": "tr", "kind": "allowed", "question": "Kurumsal paketin aylık ücreti nedir?", "expect": ["4.500"]}
+{"id": "tr-q03", "lang": "tr", "kind": "allowed", "question": "12 Mart takip kesintisinin kök nedeni nedir?", "expect": ["disk"]}
+{"id": "tr-q04", "lang": "tr", "kind": "allowed", "question": "Çalışanların yıllık kaç gün ücretli izni var?", "expect": ["20"]}
+{"id": "tr-q05", "lang": "tr", "kind": "allowed", "question": "Kritik zafiyetler kaç gün içinde kapatılır?", "expect": ["10"]}
+{"id": "tr-q06", "lang": "tr", "kind": "allowed", "question": "12 Mart'ta takip servisi ne kadar süre erişilemedi?", "expect": ["üç saat", "3 saat"]}
+{"id": "tr-q07", "lang": "tr", "kind": "restricted", "question": "Büyük müşteriler için taban maliyet çarpanı nedir?", "expect": []}
+{"id": "tr-q08", "lang": "tr", "kind": "restricted", "question": "12 Mart kesintisinden sonra hangi müşteriler hizmet kredisi aldı?", "expect": []}
+{"id": "tr-q09", "lang": "tr", "kind": "restricted", "question": "K4 bandındaki bir mühendisin maaş aralığı nedir?", "expect": []}
+{"id": "tr-q10", "lang": "tr", "kind": "restricted", "question": "2026 sızma testinden hangi açık bulgular çıktı?", "expect": []}
+{"id": "tr-q11", "lang": "tr", "kind": "restricted", "question": "Büyük müşteri fiyatlandırması nasıl hesaplanır?", "expect": []}
+{"id": "tr-q12", "lang": "tr", "kind": "restricted", "question": "12 Mart kesintisi için toplam ne kadar hizmet kredisi ödendi?", "expect": []}
