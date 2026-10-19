@@ -18,8 +18,9 @@ A pattern without a results file is shown on the site as a draft, gets `noindex`
 ## Generating results (Mac Mini)
 
 ```sh
-ollama pull qwen2.5:1.5b && ollama pull qwen2.5:3b && ollama pull qwen3:30b-a3b
-BENCH_MACHINE="Mac mini" python3 -m bench run structured-output --models qwen2.5:1.5b,qwen2.5:3b,qwen3:30b-a3b
+for m in qwen2.5:1.5b qwen3.5:4b qwen3:8b qwen3.6:35b-a3b-q8_0; do ollama pull "$m"; done
+BENCH_MACHINE="Mac mini M4 Pro 64GB" python3 -m bench run structured-output \
+  --models qwen2.5:1.5b,qwen3.5:4b,qwen3:8b,qwen3.6:35b-a3b-q8_0
 git add results && git commit -m "structured-output results" && git push
 ```
 

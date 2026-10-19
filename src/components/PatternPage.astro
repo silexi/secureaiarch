@@ -11,7 +11,10 @@ const entry = (await getCollection("patterns")).find((e) => e.id === `${slug}/${
 const { Content } = await render(entry);
 const diagrams: Record<string, any> = { "structured-output": StructuredOutput };
 const Diagram = diagrams[slug];
-const tested = !!resultsFor(entry.data.results);
+const res = resultsFor(entry.data.results);
+const tested = !!res;
+// Reproduce with the models the published results came from; fall back to one small model for drafts.
+const models: string[] = res ? res.models.map((m: { model: string }) => m.model) : ["qwen2.5:1.5b"];
 ---
 <Base lang={lang} title={entry.data.title} description={entry.data.summary} path={`/${lang}/patterns/${slug}`} noindex={!tested}>
   <p class="meta"><a href={`/${lang}`}>{s.patterns}</a> · <span class:list={["badge", { ok: tested }]}>{tested ? s.tested : s.draft}</span></p>
@@ -25,7 +28,7 @@ const tested = !!resultsFor(entry.data.results);
   <h2>{s.reproduce}</h2>
   <pre><code>{`git clone https://github.com/silexi/secureaiarch
 cd secureaiarch
-ollama pull qwen2.5:3b
-python3 -m bench run ${entry.data.results} --models qwen2.5:3b`}</code></pre>
+${models.map((m) => `ollama pull ${m}`).join("\n")}
+python3 -m bench run ${entry.data.results} --models ${models.join(",")}`}</code></pre>
   <p class="meta">{s.source}: <a href={entry.data.lab}>{entry.data.lab.replace("https://github.com/", "")}</a></p>
 </Base>
