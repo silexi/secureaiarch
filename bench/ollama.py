@@ -27,21 +27,33 @@ class Client:
     (a JSON schema enables constrained decoding)."""
 
     def chat(self, model: str, messages: list[dict], temperature: float, fmt=None,
-             num_predict: int = 400, seed: int | None = None) -> dict:
+             num_predict: int = 400, seed: int | None = None, tools: list[dict] | None = None) -> dict:
         options = {"temperature": temperature, "num_predict": num_predict}
         if seed is not None:
             options["seed"] = seed
         body = {"model": model, "messages": messages, "stream": False, "options": options, "think": False}
         if fmt is not None:
             body["format"] = fmt
+        if tools is not None:
+            body["tools"] = tools
         t0 = time.perf_counter()
         data = _post("/api/chat", body)
+        message = data.get("message", {}) or {}
         return {
-            "text": (data.get("message", {}).get("content") or "").strip(),
+            "text": (message.get("content") or "").strip(),
+            "tool_calls": [{"name": c.get("function", {}).get("name", ""), "arguments": c.get("function", {}).get("arguments") or {}}
+                           for c in message.get("tool_calls") or []],
+            "message": message,
             "prompt_tokens": data.get("prompt_eval_count", 0),
             "output_tokens": data.get("eval_count", 0),
             "seconds": time.perf_counter() - t0,
         }
+
+    def capabilities(self, model: str) -> list[str]:
+        try:
+            return _post("/api/show", {"model": model}, timeout=30).get("capabilities", [])
+        except Exception:
+            return []
 
     def embed(self, model: str, inputs: list[str]) -> list[list[float]]:
         out = []
