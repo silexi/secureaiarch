@@ -1,0 +1,2 @@
+# Only the tenant-boundary pattern needs a database driver; the rest of the bench is standard library only.
+psycopg[binary]==3.2.12

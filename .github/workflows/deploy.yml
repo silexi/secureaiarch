@@ -11,6 +11,16 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    services:
+      # tenant-boundary tests check row-level security against a real PostgreSQL.
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      BENCH_PG_DSN: "host=localhost user=postgres dbname=postgres"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,6 +28,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: pip install --break-system-packages -r bench/requirements-tenant.txt
       - run: npm test
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
