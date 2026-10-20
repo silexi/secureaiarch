@@ -8,7 +8,9 @@ const patterns = defineCollection({
     summary: z.string(),
     thesis: z.string(),
     order: z.number(),
-    lab: z.string().url(),
+    lab: z.string().url().optional(),
+    // Extra setup before the bench runs (for example a database), shown in the reproduce block.
+    setup: z.array(z.string()).optional(),
     results: z.string(),
   }),
 });

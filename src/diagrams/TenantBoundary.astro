@@ -1,0 +1,36 @@
+---
+import type { Lang } from "../i18n";
+const { lang } = Astro.props as { lang: Lang };
+const L = {
+  en: { start: "Process start", startNote: "web login or job", sess: "Session service", sessNote: "random session id, tenant, expiry", user: "User request", llm: "LLM", llmNote: "picks a query and fills its slots", gate: "Tool layer", gateNote: "named queries, typed slots, binds the session", db: "PostgreSQL row-level security", dbNote: "tenant_id = tenant of the bound session", rows: "Rows of this tenant only", prompt: "Tenant named in the prompt", promptNote: "context, not a limit", held: "id held by the harness, never by the model", title: "Tenant boundary topology" },
+  tr: { start: "Süreç başlangıcı", startNote: "web oturumu ya da iş", sess: "Oturum servisi", sessNote: "rastgele oturum kimliği, tenant, bitiş", user: "Kullanıcı talebi", llm: "LLM", llmNote: "sorgu seçer, boşluklarını doldurur", gate: "Araç katmanı", gateNote: "adlandırılmış sorgular, tipli boşluklar, oturumu bağlar", db: "PostgreSQL row-level security", dbNote: "tenant_id = bağlı oturumun tenant'ı", rows: "Yalnızca bu tenant'ın satırları", prompt: "Prompt'ta adı geçen tenant", promptNote: "bağlam, sınır değil", held: "kimliği model değil test düzeneği tutar", title: "Tenant sınırı topolojisi" },
+}[lang];
+---
+<figure class="diagram">
+<svg viewBox="0 0 450 520" role="img" aria-label={L.title}>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <rect class="box" x="20" y="10" width="190" height="52" rx="8"/>
+  <text x="115" y="31" text-anchor="middle">{L.start}</text><text class="small" x="115" y="48" text-anchor="middle">{L.startNote}</text>
+  <rect class="box control" x="240" y="10" width="190" height="52" rx="8"/>
+  <text x="335" y="31" text-anchor="middle">{L.sess}</text><text class="small" x="335" y="48" text-anchor="middle">{L.sessNote}</text>
+  <path class="edge" d="M210,36 H238"/>
+  <rect class="box untrusted" x="20" y="96" width="190" height="44" rx="8"/>
+  <text x="115" y="123" text-anchor="middle">{L.user}</text>
+  <path class="edge" d="M115,140 V176"/>
+  <rect class="box" x="20" y="178" width="190" height="52" rx="8"/>
+  <text x="115" y="199" text-anchor="middle">{L.llm}</text><text class="small" x="115" y="216" text-anchor="middle">{L.llmNote}</text>
+  <path class="edge" d="M115,230 V268"/>
+  <path class="edge" d="M335,62 V268"/>
+  <text class="small" x="345" y="160" text-anchor="start" transform="rotate(90 345 160)">{L.held}</text>
+  <rect class="box control" x="20" y="270" width="410" height="52" rx="8"/>
+  <text x="225" y="292" text-anchor="middle">{L.gate}</text><text class="small" x="225" y="310" text-anchor="middle">{L.gateNote}</text>
+  <path class="edge" d="M225,322 V360"/>
+  <rect class="box control" x="20" y="362" width="410" height="52" rx="8"/>
+  <text x="225" y="384" text-anchor="middle">{L.db}</text><text class="small" x="225" y="402" text-anchor="middle">{L.dbNote}</text>
+  <path class="edge" d="M225,414 V440"/>
+  <rect class="box sink" x="120" y="442" width="210" height="30" rx="8"/>
+  <text x="225" y="462" text-anchor="middle">{L.rows}</text>
+  <rect class="box weak" x="20" y="482" width="410" height="34" rx="8"/>
+  <text x="225" y="498" text-anchor="middle">{L.prompt}</text><text class="small" x="225" y="511" text-anchor="middle">{L.promptNote}</text>
+</svg>
+</figure>

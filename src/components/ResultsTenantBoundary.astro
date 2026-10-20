@@ -1,0 +1,81 @@
+---
+import { t, type Lang } from "../i18n";
+import { resultsFor } from "../results";
+import data from "../../bench/data/tenant_data.json";
+const { lang, pattern } = Astro.props as { lang: Lang; pattern: string };
+const s = t[lang];
+const r = resultsFor(pattern);
+const users: Record<string, string> = Object.fromEntries(data.scenarios.map((x: any) => [x.id, x.user]));
+const arms: Record<string, [string, string]> = {
+  tools_param: ["Tools, tenant as a parameter", "Araçlar, tenant parametre olarak"],
+  tools_session: ["Tools, tenant from the session", "Araçlar, tenant oturumdan"],
+  sql_prompt: ["Free SQL, tenant only in the prompt", "Serbest SQL, tenant yalnızca prompt'ta"],
+  sql_rls: ["Free SQL, row-level security", "Serbest SQL, row-level security"],
+  sql_template: ["Named queries, row-level security", "Adlandırılmış sorgular, row-level security"],
+};
+const types: Record<string, [string, string]> = {
+  direct: ["Asks for another tenant", "Başka tenant'ı istiyor"],
+  authority: ["Claims to be an administrator", "Yönetici olduğunu iddia ediyor"],
+  enumerate: ["Asks which other companies exist", "Başka hangi firmalar var diye soruyor"],
+  indirect: ["Instruction in a support ticket", "Destek kaydındaki talimat"],
+};
+const L = (pair: [string, string]) => pair[lang === "tr" ? 1 : 0];
+const arm = (k: string) => L(arms[k.split("@")[0]]);
+const loc = lang === "tr" ? "tr-TR" : "en-US";
+const pct = (v: number | null | undefined) => (v === null || v === undefined ? "–" : `${v.toLocaleString(loc)}%`);
+const date = (iso: string) => new Date(iso).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-GB", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
+const hw = r ? [r.machine, r.hardware?.chip, r.hardware?.memory_gb ? `${r.hardware.memory_gb} GB` : "", r.hardware?.os].filter(Boolean).join(" · ") : "";
+const call = (c: any) => `${c.tool}(${JSON.stringify(c.args)}) -> ${JSON.stringify(c.result).slice(0, 400)}`;
+---
+{!r && <p class="notice">{s.noResults}</p>}
+{r && (
+  <>
+    <p class="meta">{s.machine}: {hw} · Ollama {r.ollama_version} · PostgreSQL · {s.generated}: {date(r.generated)} · commit <code>{r.git_sha}</code></p>
+    {r.models.map((m: any) => (
+      <>
+        <h3>{m.model} <span class="meta">{[m.info?.parameter_size, m.info?.quantization].filter(Boolean).join(" · ")}</span></h3>
+        {m.constrained_error && <p class="notice">{m.constrained_error}</p>}
+        {Object.keys(m.summary).length > 0 && (
+          <>
+            <table>
+              <thead><tr><th>{s.arm}</th><th>n</th><th>{s.attackLeak}</th><th>{s.attempted}</th><th>{s.benignLeak}</th><th>{s.benignDone}</th><th>{s.toolErrors}</th><th>{s.latency}</th></tr></thead>
+              <tbody>
+                {Object.entries(m.summary).map(([k, v]: [string, any]) => (
+                  <tr>
+                    <td>{arm(k)}{" "}<span class="meta">t={k.split("@")[1]}</span></td><td class="num">{v.n}</td><td class="num">{pct(v.attack_leak_pct)}</td>
+                    <td class="num">{pct(v.attack_attempted_pct)}</td><td class="num">{pct(v.benign_leak_pct)}</td><td class="num">{pct(v.benign_completed_pct)}</td>
+                    <td class="num">{v.tool_errors}</td><td class="num">{v.latency_s.p50} / {v.latency_s.p95} s</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <details>
+              <summary>{s.leakByTypeTitle}</summary>
+              <table>
+                <thead><tr><th>{s.arm}</th>{Object.keys(types).map((k) => <th>{L(types[k])}</th>)}</tr></thead>
+                <tbody>
+                  {Object.entries(m.summary).map(([k, v]: [string, any]) => (
+                    <tr><td>{arm(k)}{" "}<span class="meta">t={k.split("@")[1]}</span></td>{Object.keys(types).map((ty) => <td class="num">{pct(v.attack_leak_by_type?.[ty])}</td>)}</tr>
+                  ))}
+                </tbody>
+              </table>
+            </details>
+          </>
+        )}
+        {m.examples?.length > 0 && (
+          <>
+            <h4>{s.leakExamples}</h4>
+            {m.examples.map((e: any) => (
+              <details>
+                <summary>{arm(e.arm)} · {users[e.scenario]}</summary>
+                <p class="meta">{s.toolCalls}</p>
+                <pre><code>{e.trace.map(call).join("\n")}</code></pre>
+                <p class="meta">{s.modelAnswer}</p><pre><code>{e.answer}</code></pre>
+              </details>
+            ))}
+          </>
+        )}
+      </>
+    ))}
+  </>
+)}

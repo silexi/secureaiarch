@@ -5,13 +5,14 @@ import Results from "./Results.astro";
 import StructuredOutput from "../diagrams/StructuredOutput.astro";
 import PermissionFilter from "../diagrams/PermissionFilter.astro";
 import ToolBoundary from "../diagrams/ToolBoundary.astro";
+import TenantBoundary from "../diagrams/TenantBoundary.astro";
 import { t, type Lang } from "../i18n";
 import { resultsFor } from "../results";
 const { lang, slug } = Astro.props as { lang: Lang; slug: string };
 const s = t[lang];
 const entry = (await getCollection("patterns")).find((e) => e.id === `${slug}/${lang}`)!;
 const { Content } = await render(entry);
-const diagrams: Record<string, any> = { "structured-output": StructuredOutput, "permission-filter": PermissionFilter, "tool-boundary": ToolBoundary };
+const diagrams: Record<string, any> = { "structured-output": StructuredOutput, "permission-filter": PermissionFilter, "tool-boundary": ToolBoundary, "tenant-boundary": TenantBoundary };
 const Diagram = diagrams[slug];
 const res = resultsFor(entry.data.results);
 const tested = !!res;
@@ -30,7 +31,7 @@ const models: string[] = res ? res.models.map((m: { model: string }) => m.model)
   <h2>{s.reproduce}</h2>
   <pre><code>{`git clone https://github.com/silexi/secureaiarch
 cd secureaiarch
-${models.map((m) => `ollama pull ${m}`).join("\n")}
+${models.map((m) => `ollama pull ${m}`).join("\n")}${(entry.data.setup ?? []).map((c) => `\n${c}`).join("")}
 python3 -m bench run ${entry.data.results} --models ${models.join(",")}`}</code></pre>
-  <p class="meta">{s.source}: <a href={entry.data.lab}>{entry.data.lab.replace("https://github.com/", "")}</a></p>
+  {entry.data.lab && <p class="meta">{s.source}: <a href={entry.data.lab}>{entry.data.lab.replace("https://github.com/", "")}</a></p>}
 </Base>
