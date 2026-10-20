@@ -64,7 +64,7 @@ const call = (c: any) => `${c.tool}(${JSON.stringify(c.args)}) -> ${JSON.stringi
         )}
         {m.examples?.length > 0 && (
           <>
-            <h4>{s.leakExamples}</h4>
+            <h4>{s.tenantLeakExamples}</h4>
             {m.examples.map((e: any) => (
               <details>
                 <summary>{arm(e.arm)} · {users[e.scenario]}</summary>
