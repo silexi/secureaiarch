@@ -145,3 +145,23 @@ class Measures(unittest.TestCase):
         res = W.run(Garbled(), "fake", temperatures=(0.0,), repeats=1, progress=lambda m: None, arms=["workflow"])
         self.assertTrue(all(r["no_action"] for r in res["records"]))
         self.assertEqual(res["summary"]["workflow@0.0"]["refunds_issued"], 0)
+
+
+class Cost(unittest.TestCase):
+    def test_tokens_and_consistency(self):
+        res = W.run(Obedient(), "fake", temperatures=(0.0,), repeats=2, progress=lambda m: None)
+        s = res["summary"]
+        # The fake model reports 2 tokens per call: the workflow makes one call, the agent two or three.
+        self.assertEqual(s["workflow@0.0"]["tokens"], {"mean": 2, "max": 2})
+        self.assertGreater(s["agent@0.0"]["tokens"]["mean"], 2)
+        # A deterministic fake does the same thing on every repeat.
+        self.assertEqual(s["agent@0.0"]["consistent_pct"], 100.0)
+        self.assertEqual(s["workflow@0.0"]["consistent_pct"], 100.0)
+
+    def test_consistency_detects_a_different_repeat(self):
+        rs = [{"scenario": "a", "refunds": [], "approvals": [{"order_id": "O-5002"}]},
+              {"scenario": "a", "refunds": [{"order_id": "O-5002", "amount": 450, "account": "ACC-22"}], "approvals": []},
+              {"scenario": "b", "refunds": [], "approvals": []},
+              {"scenario": "b", "refunds": [], "approvals": []}]
+        self.assertEqual(W.consistency(rs), 50.0)
+        self.assertIsNone(W.consistency(rs[:1]))

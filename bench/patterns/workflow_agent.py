@@ -167,10 +167,11 @@ def run_agent(client, model, scenario, policy, orders, temperature, seed):
     engine = Engine(policy, orders)
     system = SYSTEM_AGENT[scenario["lang"]]
     messages = [{"role": "system", "content": system}, {"role": "user", "content": scenario["user"]}]
-    trace, seconds, answer, steps = [], 0.0, "", 0
+    trace, seconds, answer, steps, tokens = [], 0.0, "", 0, 0
     for _ in range(MAX_STEPS):
         r = client.chat(model, messages, temperature, num_predict=300, seed=seed, tools=AGENT_TOOLS)
         seconds += r["seconds"]
+        tokens += r.get("prompt_tokens", 0) + r.get("output_tokens", 0)
         steps += 1
         if not r["tool_calls"]:
             answer = r["text"]
@@ -181,7 +182,7 @@ def run_agent(client, model, scenario, policy, orders, temperature, seed):
             result = engine.call(c["name"], args)
             trace.append({"tool": c["name"], "args": args, "result": result})
             messages.append({"role": "tool", "tool_name": c["name"], "content": json.dumps(result, ensure_ascii=False)})
-    return engine, trace, answer, seconds, steps
+    return engine, trace, answer, seconds, steps, tokens
 
 
 def run_workflow(client, model, scenario, policy, orders, temperature, seed):
@@ -192,6 +193,7 @@ def run_workflow(client, model, scenario, policy, orders, temperature, seed):
                 {"role": "user", "content": scenario["user"]}]
     r = client.chat(model, messages, temperature, num_predict=120, seed=seed, fmt=READ_SCHEMA)
     seconds = r["seconds"]
+    tokens = r.get("prompt_tokens", 0) + r.get("output_tokens", 0)
     try:
         read = json.loads(r["text"])
         intent = read.get("intent")
@@ -215,7 +217,7 @@ def run_workflow(client, model, scenario, policy, orders, temperature, seed):
         trace.append({"step": "process", "result": out})
         answer = {"en": "Refund issued.", "tr": "İade yapıldı."}[scenario["lang"]] if out["action"] == "refund" \
             else {"en": "Filed for approval.", "tr": "Onaya gönderildi."}[scenario["lang"]]
-    return engine, trace, answer, seconds, 1
+    return engine, trace, answer, seconds, 1, tokens
 
 
 def outcome(scenario, engine, answer, attacker_accounts=()):
@@ -267,11 +269,30 @@ def summarize(records: list[dict]) -> tuple[dict, list[dict]]:
                 "refunds_issued": sum(len(r["refunds"]) for r in rs),
                 "no_action_pct": pct(sum(r.get("no_action", False) for r in rs), len(rs)),
                 "steps": {"max": max(r["steps"] for r in rs), "mean": round(statistics.mean(r["steps"] for r in rs), 2)},
+                "tokens": ({"mean": round(statistics.mean(r["tokens"] for r in rs)), "max": max(r["tokens"] for r in rs)}
+                           if all("tokens" in r for r in rs) else None),
+                "consistent_pct": consistency(rs),
                 "latency_s": {"p50": round(statistics.median(secs), 2), "p95": round(secs[min(len(secs) - 1, int(0.95 * len(secs)))], 2)},
             }
     examples = [{"scenario": r["scenario"], "arm": r["arm"], "type": r["type"], "trace": r["trace"], "answer": r["answer"][:300]}
                 for r in records if r["harmful"] and r["kind"] == "attack" and r["temperature"] == 0.0][:4]
     return summary, examples
+
+
+def signature(r: dict) -> tuple:
+    """What a run did: the refunds (order, amount, account) and approvals (order) it left behind."""
+    refunds = tuple(sorted((rf["order_id"], str(rf["amount"]), rf["account"]) for rf in r["refunds"]))
+    approvals = tuple(sorted(a["order_id"] for a in r["approvals"]))
+    return refunds, approvals
+
+
+def consistency(rs: list[dict]) -> float | None:
+    """Share of requests whose repeats all did exactly the same thing. None with a single repeat."""
+    groups: dict[str, list[tuple]] = {}
+    for r in rs:
+        groups.setdefault(r["scenario"], []).append(signature(r))
+    multi = [g for g in groups.values() if len(g) > 1]
+    return pct(sum(len(set(g)) == 1 for g in multi), len(multi)) if multi else None
 
 
 def pct(n, d):
@@ -290,10 +311,10 @@ def run(client, model: str, temperatures=(0.0,), repeats: int = 1, progress=prin
             for arm in arms or ARMS:
                 runner = run_agent if arm == "agent" else run_workflow
                 for s in scenarios:
-                    engine, trace, answer, secs, steps = runner(client, model, s, policy, orders, temp, rep + 1)
+                    engine, trace, answer, secs, steps, tokens = runner(client, model, s, policy, orders, temp, rep + 1)
                     o = outcome(s, engine, answer, attackers)
                     records.append({"scenario": s["id"], "lang": s["lang"], "kind": s["kind"], "type": s["type"], "arm": arm,
-                                    "temperature": temp, "seed": rep + 1, "steps": steps, "trace": trace, "answer": answer,
+                                    "temperature": temp, "seed": rep + 1, "steps": steps, "tokens": tokens, "trace": trace, "answer": answer,
                                     "seconds": round(secs, 3), **o})
                 progress(f"  {model} {arm} t={temp} rep={rep + 1}")
     summary, examples = summarize(records)

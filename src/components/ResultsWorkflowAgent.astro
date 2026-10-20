@@ -1,0 +1,119 @@
+---
+import { t, type Lang } from "../i18n";
+import { resultsFor } from "../results";
+import data from "../../bench/data/refund_scenarios.json";
+const { lang, pattern } = Astro.props as { lang: Lang; pattern: string };
+const s = t[lang];
+const r = resultsFor(pattern);
+const users: Record<string, string> = Object.fromEntries(data.scenarios.map((x: any) => [x.id, x.user]));
+const arms: Record<string, [string, string]> = {
+  agent: ["Agent: the model chooses the steps", "Ajan: adımları model seçer"],
+  workflow: ["Workflow: code runs the steps", "İş akışı: adımları kod yürütür"],
+};
+const attacks: Record<string, [string, string]> = {
+  overlimit_push: ["Demand to skip approval on 450", "450 için onayı atlama talebi"],
+  window_push: ["Demand to refund past the window", "Süresi geçmiş iade talebi"],
+  planted_skip: ["Note says issue the full refund", "Not tam iadeyi söylüyor"],
+  planted_account: ["Note gives another account", "Not başka hesap veriyor"],
+};
+const benign: Record<string, [string, string]> = {
+  in_policy: ["Refund within policy", "Politika içi iade"],
+  needs_approval: ["Refund that needs approval", "Onay gereken iade"],
+  question: ["Eligibility question", "Uygunluk sorusu"],
+};
+const reasons: Record<string, [string, string]> = {
+  over_limit: ["Above the 100 limit", "100 sınırının üstünde"],
+  above_order_amount: ["Above the order amount", "Sipariş tutarının üstünde"],
+  outside_window: ["Past the 30-day window", "30 günlük sürenin dışında"],
+  wrong_account: ["Not the order's account", "Siparişin hesabı değil"],
+  bad_amount: ["Amount not a number", "Tutar sayı değil"],
+};
+const L = (pair: [string, string]) => pair[lang === "tr" ? 1 : 0];
+const arm = (k: string) => L(arms[k.split("@")[0]]);
+const temp = (k: string) => k.split("@")[1];
+const loc = lang === "tr" ? "tr-TR" : "en-US";
+const pct = (v: number | null | undefined) => (v === null || v === undefined ? "–" : `${v.toLocaleString(loc)}%`);
+const num = (v: number) => v.toLocaleString(loc);
+const date = (iso: string) => new Date(iso).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-GB", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
+const hw = r ? [r.machine, r.hardware?.chip, r.hardware?.memory_gb ? `${r.hardware.memory_gb} GB` : "", r.hardware?.os].filter(Boolean).join(" · ") : "";
+const traceLine = (c: any) => (c.tool ? `${c.tool}(${JSON.stringify(c.args)}) -> ${JSON.stringify(c.result)}` : `${c.step}: ${JSON.stringify(c.result)}`);
+---
+{!r && <p class="notice">{s.noResults}</p>}
+{r && (
+  <>
+    <p class="meta">{s.machine}: {hw} · Ollama {r.ollama_version} · {s.generated}: {date(r.generated)} · commit <code>{r.git_sha}</code></p>
+    {r.models.map((m: any) => (
+      <>
+        <h3>{m.model} <span class="meta">{[m.info?.parameter_size, m.info?.quantization].filter(Boolean).join(" · ")}</span></h3>
+        {m.constrained_error && <p class="notice">{m.constrained_error}</p>}
+        {Object.keys(m.summary).length > 0 && (
+          <>
+            <table>
+              <thead><tr><th>{s.arm}</th><th>n</th><th>{s.oopRefund}</th><th>{s.plantedAccount}</th><th>{s.escalated}</th><th>{s.benignDone}</th><th>{s.refundsIssued}</th><th>{s.withoutLookup}</th><th>{s.noAction}</th><th>{s.steps}</th><th>{s.tokensCol}</th><th>{s.consistent}</th><th>{s.latency}</th></tr></thead>
+              <tbody>
+                {Object.entries(m.summary).map(([k, v]: [string, any]) => (
+                  <tr>
+                    <td>{arm(k)}{" "}<span class="meta">t={temp(k)}</span></td><td class="num">{v.n}</td>
+                    <td class="num">{pct(v.attack_refund_pct)}</td><td class="num">{pct(v.to_attacker_account_pct)}</td>
+                    <td class="num">{pct(v.attack_escalated_pct)}</td><td class="num">{pct(v.benign_completed_pct)}</td>
+                    <td class="num">{num(v.refunds_issued)} <span class="meta">({num(v.out_of_policy_refunds)} {s.outOfPolicy})</span></td>
+                    <td class="num">{num(v.refund_without_lookup)}</td><td class="num">{pct(v.no_action_pct)}</td>
+                    <td class="num">{v.steps.mean.toLocaleString(loc)} / {v.steps.max}</td>
+                    <td class="num">{v.tokens ? `${num(v.tokens.mean)} / ${num(v.tokens.max)}` : "–"}</td><td class="num">{pct(v.consistent_pct)}</td>
+                    <td class="num">{v.latency_s.p50} / {v.latency_s.p95} s</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <details>
+              <summary>{s.refundAttackByType}</summary>
+              <table>
+                <thead><tr><th>{s.arm}</th>{Object.keys(attacks).map((k) => <th>{L(attacks[k])}</th>)}</tr></thead>
+                <tbody>
+                  {Object.entries(m.summary).map(([k, v]: [string, any]) => (
+                    <tr><td>{arm(k)}{" "}<span class="meta">t={temp(k)}</span></td>{Object.keys(attacks).map((ty) => <td class="num">{pct(v.attack_refund_by_type?.[ty])}</td>)}</tr>
+                  ))}
+                </tbody>
+              </table>
+            </details>
+            <details>
+              <summary>{s.benignByTypeTitle}</summary>
+              <table>
+                <thead><tr><th>{s.arm}</th>{Object.keys(benign).map((k) => <th>{L(benign[k])}</th>)}</tr></thead>
+                <tbody>
+                  {Object.entries(m.summary).map(([k, v]: [string, any]) => (
+                    <tr><td>{arm(k)}{" "}<span class="meta">t={temp(k)}</span></td>{Object.keys(benign).map((ty) => <td class="num">{pct(v.benign_completed_by_type?.[ty])}</td>)}</tr>
+                  ))}
+                </tbody>
+              </table>
+            </details>
+            <details>
+              <summary>{s.violationsTitle}</summary>
+              <table>
+                <thead><tr><th>{s.arm}</th>{Object.keys(reasons).map((k) => <th>{L(reasons[k])}</th>)}</tr></thead>
+                <tbody>
+                  {Object.entries(m.summary).map(([k, v]: [string, any]) => (
+                    <tr><td>{arm(k)}{" "}<span class="meta">t={temp(k)}</span></td>{Object.keys(reasons).map((ty) => <td class="num">{num(v.violations?.[ty] ?? 0)}</td>)}</tr>
+                  ))}
+                </tbody>
+              </table>
+            </details>
+          </>
+        )}
+        {m.examples?.length > 0 && (
+          <>
+            <h4>{s.harmfulExamples}</h4>
+            {m.examples.map((e: any) => (
+              <details>
+                <summary>{arm(e.arm)} · {users[e.scenario]}</summary>
+                <p class="meta">{e.trace.some((c: any) => c.step) ? s.workflowSteps : s.toolCalls}</p>
+                <pre><code>{e.trace.map(traceLine).join("\n")}</code></pre>
+                <p class="meta">{s.modelAnswer}</p><pre><code>{e.answer}</code></pre>
+              </details>
+            ))}
+          </>
+        )}
+      </>
+    ))}
+  </>
+)}
