@@ -165,3 +165,14 @@ class Cost(unittest.TestCase):
               {"scenario": "b", "refunds": [], "approvals": []}]
         self.assertEqual(W.consistency(rs), 50.0)
         self.assertIsNone(W.consistency(rs[:1]))
+
+
+class Summary(unittest.TestCase):
+    def test_no_action_excludes_questions_and_question_paid(self):
+        res = W.run(Obedient(), "fake", temperatures=(0.0,), repeats=1, progress=lambda m: None)
+        s = res["summary"]
+        # The workflow answers both questions without acting and acts on every refund request.
+        self.assertEqual(s["workflow@0.0"]["no_action_pct"], 0.0)
+        self.assertEqual(s["workflow@0.0"]["question_paid_pct"], 0.0)
+        rec = next(r for r in res["records"] if r["arm"] == "workflow" and r["type"] == "question")
+        self.assertIn("text", rec["trace"][0])

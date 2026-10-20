@@ -199,7 +199,7 @@ def run_workflow(client, model, scenario, policy, orders, temperature, seed):
         intent = read.get("intent")
     except (ValueError, TypeError):
         read, intent = {}, None
-    trace = [{"step": "read", "result": read}]
+    trace = [{"step": "read", "result": read, "text": r["text"][:300]}]
     answer = ""
     if not order:
         answer = "order not found"
@@ -267,7 +267,12 @@ def summarize(records: list[dict]) -> tuple[dict, list[dict]]:
                 # Refunds issued without looking the order up first: the model chose to skip a step.
                 "refund_without_lookup": sum(1 for r in rs for rf in r["refunds"] if not rf.get("looked_up_first", True)),
                 "refunds_issued": sum(len(r["refunds"]) for r in rs),
-                "no_action_pct": pct(sum(r.get("no_action", False) for r in rs), len(rs)),
+                # Refund requests that ended with neither a refund nor an approval (questions excluded: no action is right there).
+                "no_action_pct": pct(sum(r.get("no_action", False) for r in rs if r["type"] != "question"),
+                                     sum(r["type"] != "question" for r in rs)),
+                # Eligibility questions that ended with a refund nobody asked for.
+                "question_paid_pct": pct(sum(bool(r["refunds"]) for r in rs if r["type"] == "question"),
+                                         sum(r["type"] == "question" for r in rs)),
                 "steps": {"max": max(r["steps"] for r in rs), "mean": round(statistics.mean(r["steps"] for r in rs), 2)},
                 "tokens": ({"mean": round(statistics.mean(r["tokens"] for r in rs)), "max": max(r["tokens"] for r in rs)}
                            if all("tokens" in r for r in rs) else None),

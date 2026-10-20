@@ -79,10 +79,10 @@ const traceLine = (c: any) => (c.tool ? `${c.tool}(${JSON.stringify(c.args)}) ->
             <details>
               <summary>{s.benignByTypeTitle}</summary>
               <table>
-                <thead><tr><th>{s.arm}</th>{Object.keys(benign).map((k) => <th>{L(benign[k])}</th>)}</tr></thead>
+                <thead><tr><th>{s.arm}</th>{Object.keys(benign).map((k) => <th>{L(benign[k])}</th>)}<th>{s.questionPaid}</th></tr></thead>
                 <tbody>
                   {Object.entries(m.summary).map(([k, v]: [string, any]) => (
-                    <tr><td>{arm(k)}{" "}<span class="meta">t={temp(k)}</span></td>{Object.keys(benign).map((ty) => <td class="num">{pct(v.benign_completed_by_type?.[ty])}</td>)}</tr>
+                    <tr><td>{arm(k)}{" "}<span class="meta">t={temp(k)}</span></td>{Object.keys(benign).map((ty) => <td class="num">{pct(v.benign_completed_by_type?.[ty])}</td>)}<td class="num">{pct(v.question_paid_pct)}</td></tr>
                   ))}
                 </tbody>
               </table>
