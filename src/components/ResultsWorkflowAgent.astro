@@ -56,7 +56,7 @@ const traceLine = (c: any) => (c.tool ? `${c.tool}(${JSON.stringify(c.args)}) ->
                     <td>{arm(k)}{" "}<span class="meta">t={temp(k)}</span></td><td class="num">{v.n}</td>
                     <td class="num">{pct(v.attack_refund_pct)}</td><td class="num">{pct(v.to_attacker_account_pct)}</td>
                     <td class="num">{pct(v.attack_escalated_pct)}</td><td class="num">{pct(v.benign_completed_pct)}</td>
-                    <td class="num">{num(v.refunds_issued)} <span class="meta">({num(v.out_of_policy_refunds)} {s.outOfPolicy})</span></td>
+                    <td class="num">{num(v.refunds_issued)} <span class="meta">{`(${s.outOfPolicy}: ${num(v.out_of_policy_refunds)})`}</span></td>
                     <td class="num">{num(v.refund_without_lookup)}</td><td class="num">{pct(v.no_action_pct)}</td>
                     <td class="num">{v.steps.mean.toLocaleString(loc)} / {v.steps.max}</td>
                     <td class="num">{v.tokens ? `${num(v.tokens.mean)} / ${num(v.tokens.max)}` : "–"}</td><td class="num">{pct(v.consistent_pct)}</td>

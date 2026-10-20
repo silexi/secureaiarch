@@ -2,8 +2,8 @@
 import type { Lang } from "../i18n";
 const { lang } = Astro.props as { lang: Lang };
 const L = {
-  en: { user: "User request", order: "Order record", orderNote: "note: written by staff or customer", llm: "LLM", llmNote: "reads the request: intent, amount", code: "Workflow code", codeNote: "looks the order up, checks the policy on the order's own fields", fields: "amount, age, account;", fields2: "the note is not read", refund: "Refund to the order's account", approval: "Filed for a person to approve", agent: "Agent arm: the model holds issue_refund and picks the steps", agentNote: "the policy is only in the prompt", title: "Workflow topology" },
-  tr: { user: "Kullanıcı talebi", order: "Sipariş kaydı", orderNote: "not: personel ya da müşteri yazar", llm: "LLM", llmNote: "talebi okur: niyet, tutar", code: "İş akışı kodu", codeNote: "siparişi sorgular, politikayı siparişin kendi alanlarıyla denetler", fields: "tutar, yaş, hesap;", fields2: "not okunmaz", refund: "Siparişin hesabına iade", approval: "Bir kişinin onayına gönderildi", agent: "Ajan kolu: issue_refund modelde, adımları model seçer", agentNote: "politika yalnızca prompt'ta", title: "İş akışı topolojisi" },
+  en: { user: "User request", order: "Order record", orderNote: "note: written by staff or customer", llm: "LLM", llmNote: "reads the request: intent, amount", code: "Workflow code", codeNote: "looks the order up, checks the policy on the order's own fields", fields: "amount, age,", fields2: "account;", fields3: "note not read", refund: "Paid to the order's account", approval: "Filed for a person to approve", agent: "Agent arm: the model holds issue_refund and picks the steps", agentNote: "the policy is only in the prompt", title: "Workflow topology" },
+  tr: { user: "Kullanıcı talebi", order: "Sipariş kaydı", orderNote: "not: personel ya da müşteri yazar", llm: "LLM", llmNote: "talebi okur: niyet, tutar", code: "İş akışı kodu", codeNote: "siparişi sorgular, politikayı siparişin kendi alanlarıyla denetler", fields: "tutar, yaş,", fields2: "hesap;", fields3: "not okunmaz", refund: "Siparişin hesabına iade", approval: "Bir kişinin onayına gönderildi", agent: "Ajan kolu: issue_refund modelde, adımları model seçer", agentNote: "politika yalnızca prompt'ta", title: "İş akışı topolojisi" },
 }[lang];
 ---
 <figure class="diagram">
@@ -18,8 +18,9 @@ const L = {
   <text x="115" y="117" text-anchor="middle">{L.llm}</text><text class="small" x="115" y="134" text-anchor="middle">{L.llmNote}</text>
   <path class="edge" d="M115,148 V196"/>
   <path class="edge" d="M335,62 V196"/>
-  <text class="small" x="343" y="124">{L.fields}</text>
-  <text class="small" x="343" y="138">{L.fields2}</text>
+  <text class="small" x="343" y="117">{L.fields}</text>
+  <text class="small" x="343" y="131">{L.fields2}</text>
+  <text class="small" x="343" y="145">{L.fields3}</text>
   <rect class="box control" x="20" y="198" width="410" height="52" rx="8"/>
   <text x="225" y="219" text-anchor="middle">{L.code}</text><text class="small" x="225" y="237" text-anchor="middle">{L.codeNote}</text>
   <path class="edge" d="M115,250 V288"/>
