@@ -96,6 +96,16 @@ class Prohibition(unittest.TestCase):
         self.assertEqual(s["never_vs_none"]["adjacent@1.0"]["never"], "4/12")
         self.assertEqual(s["probability"]["none/unrelated"]["name_found"], 6)
 
+    def test_from_tops_matches_first_decision(self):
+        for lps in (JSON_STYLE, XML_STYLE):
+            d = P.first_decision(lps)
+            r = P.from_tops(d["top"])
+            for k in ("p_delete", "delete_in_top", "bound", "unresolved"):
+                self.assertAlmostEqual(float(d[k]), float(r[k]), places=3)
+
+    def test_tiny_probabilities_are_kept(self):
+        self.assertGreater(P.sig(4e-18), 0.0)
+
     def test_fisher(self):
         self.assertEqual(P.fisher_two_sided(3, 1, 1, 3), 0.4857)
         self.assertEqual(P.fisher_two_sided(0, 10, 0, 10), 1.0)

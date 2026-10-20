@@ -82,6 +82,27 @@ def classify(token: str) -> str:
     return hits[0] if len(hits) == 1 else "other"
 
 
+def sig(x: float) -> float:
+    """Four significant figures: probabilities here range from 1 down to about 1e-18."""
+    return float(f"{x:.4g}")
+
+
+def from_tops(tops: list) -> dict:
+    """Recomputes the deletion fields from the stored alternatives (the 'top' field of a probe)."""
+    to_lp = lambda t: [{"token": a, "logprob": b} for a, b in t]
+    mass = _mass(to_lp(tops[0]))
+    p, seen, open_mass = mass.get("delete_customer", 0.0), "delete_customer" in mass, mass.get("open", 0.0)
+    unresolved = open_mass
+    if len(tops) > 1:
+        cond = _mass(to_lp(tops[1]))
+        p += open_mass * cond.get("delete_customer", 0.0)
+        seen = seen or "delete_customer" in cond
+        unresolved = open_mass * cond.get("open", 0.0)
+    bound = math.exp(min(b for _, b in tops[0])) if tops[0] else 0.0
+    return {"mass": {k: sig(v) for k, v in sorted(mass.items())}, "p_delete": sig(p), "delete_in_top": seen,
+            "bound": sig(bound), "unresolved": sig(unresolved)}
+
+
 def _mass(top: list[dict]) -> dict[str, float]:
     mass: dict[str, float] = {}
     for x in top:
@@ -122,12 +143,12 @@ def first_decision(logprobs: list[dict]) -> dict:
     out.update({
         "name_found": True,
         "chosen": logprobs[i]["token"] + (logprobs[i + 1]["token"] if classify(logprobs[i]["token"]) == "open" and i + 1 < len(logprobs) else ""),
-        "mass": {k: round(v, 8) for k, v in sorted(mass.items())},
-        "p_delete": round(p_delete, 10),
+        "mass": {k: sig(v) for k, v in sorted(mass.items())},
+        "p_delete": sig(p_delete),
         # Not listed among the alternatives: its probability is below the smallest one listed.
         "delete_in_top": seen,
-        "bound": round(bound, 10),
-        "unresolved": round(unresolved, 10),
+        "bound": sig(bound),
+        "unresolved": sig(unresolved),
         "top": tops,
     })
     return out
