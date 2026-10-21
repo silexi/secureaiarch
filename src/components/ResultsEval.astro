@@ -1,0 +1,82 @@
+---
+import { t, type Lang } from "../i18n";
+import { resultsFor } from "../results";
+const { lang, pattern } = Astro.props as { lang: Lang; pattern: string };
+const s = t[lang];
+const r = resultsFor(pattern);
+const prompts: Record<string, [string, string]> = {
+  v1: ["v1: baseline", "v1: temel"],
+  v2: ["v2: urgency sentence added", "v2: aciliyet cümlesi eklendi"],
+  v3: ["v3: data sentence and delimiters removed", "v3: veri cümlesi ve ayraçlar çıkarıldı"],
+};
+const changes: Record<string, [string, string]> = {
+  none: ["No change (repeat of v1)", "Değişiklik yok (v1 tekrarı)"],
+  prompt_edit: ["Prompt edit (v2)", "Prompt düzenlemesi (v2)"],
+  security: ["Prompt cleanup (v3)", "Prompt temizliği (v3)"],
+};
+const fieldNames: Record<string, [string, string]> = {
+  category: ["category", "kategori"], urgency: ["urgency", "aciliyet"], period: ["period", "dönem"], amount: ["amount", "tutar"],
+};
+const designs = ["small_exact", "small_norm", "full", "full_attack"];
+const designLabel: Record<string, string> = { small_exact: s.evSmallExact, small_norm: s.evSmallNorm, full: s.evFull, full_attack: s.evFullAttack };
+const L = (pair: [string, string]) => pair[lang === "tr" ? 1 : 0];
+const loc = lang === "tr" ? "tr-TR" : "en-US";
+const pct = (v: number | null | undefined) => (v === null || v === undefined ? "–" : `${v.toLocaleString(loc)}%`);
+const pts = (v: number | null | undefined) => (v === null || v === undefined ? "–" : `${v > 0 ? "+" : ""}${v.toLocaleString(loc)}`);
+const date = (iso: string) => new Date(iso).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-GB", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
+const hw = r ? [r.machine, r.hardware?.chip, r.hardware?.memory_gb ? `${r.hardware.memory_gb} GB` : "", r.hardware?.os].filter(Boolean).join(" · ") : "";
+const swaps = r?.cross_model ? Object.values(r.cross_model) as any[] : [];
+---
+{!r && <p class="notice">{s.noResults}</p>}
+{r && (
+  <>
+    <p class="meta">{s.machine}: {hw} · Ollama {r.ollama_version} · {s.generated}: {date(r.generated)} · commit <code>{r.git_sha}</code></p>
+    <p class="meta">{s.evNote}</p>
+    {r.models.map((m: any) => (
+      <>
+        <h3>{m.model} <span class="meta">{[m.info?.parameter_size, m.info?.quantization].filter(Boolean).join(" · ")}</span></h3>
+        {Object.entries(m.summary).map(([tk, v]: [string, any]) => (
+          <>
+            <h4>{tk.replace("t=", lang === "tr" ? "sıcaklık " : "temperature ")}</h4>
+            <table>
+              <thead><tr><th>{s.evChange}</th><th>{s.evAccDelta}</th><th>{s.evInjDelta}</th>{designs.map((d) => <th>{designLabel[d]}</th>)}</tr></thead>
+              <tbody>
+                {Object.entries(v.comparisons).map(([ck, c]: [string, any]) => (
+                  <tr><td>{L(changes[ck])}</td><td class="num">{pts(c.accuracy_delta_pts)}</td><td class="num">{pts(c.injection_delta_pts)}</td>
+                    {designs.map((d) => <td class="num">{pct(c.flagged_pct?.[d])}</td>)}</tr>
+                ))}
+              </tbody>
+            </table>
+            <details>
+              <summary>{s.evPromptsTitle}</summary>
+              <table>
+                <thead><tr><th>{s.evPrompt}</th><th>{s.evAccuracy}</th>{Object.keys(fieldNames).map((f) => <th>{L(fieldNames[f])}</th>)}<th>{s.evInjection}</th><th>{s.evExactMisses}</th><th>{s.evUnparsed}</th></tr></thead>
+                <tbody>
+                  {Object.entries(v.configs).map(([pk, c]: [string, any]) => (
+                    <tr><td>{L(prompts[pk])}</td><td class="num">{pct(c.accuracy_pct)}</td>
+                      {Object.keys(fieldNames).map((f) => <td class="num">{pct(c.accuracy_by_field_pct?.[f])}</td>)}
+                      <td class="num">{pct(c.injection_followed_pct)}</td><td class="num">{c.exact_compare_misses} / {c.outputs}</td><td class="num">{c.unparsed}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </details>
+          </>
+        ))}
+      </>
+    ))}
+    {swaps.length > 0 && (
+      <>
+        <h3>{s.evSwapTitle}</h3>
+        <table>
+          <thead><tr><th>{s.evChange}</th><th>{s.evAccDelta}</th><th>{s.evInjDelta}</th>{designs.map((d) => <th>{designLabel[d]}</th>)}</tr></thead>
+          <tbody>
+            {swaps.map((c: any) => (
+              <tr><td>{c.from} → {c.to} <span class="meta">t={c.temperature}</span></td><td class="num">{pts(c.accuracy_delta_pts)}</td><td class="num">{pts(c.injection_delta_pts)}</td>
+                {designs.map((d) => <td class="num">{pct(c.flagged_pct?.[d])}</td>)}</tr>
+            ))}
+          </tbody>
+        </table>
+      </>
+    )}
+  </>
+)}

@@ -1,0 +1,35 @@
+---
+import type { Lang } from "../i18n";
+const { lang } = Astro.props as { lang: Lang };
+const L = {
+  en: { change: "Change", changeNote: "prompt, model or code", set: "Eval set", setNote: "labelled cases + attack cases", run: "Run both versions", runNote: "same cases, same settings, repeated", cmp: "Compare per field", cmpNote: "normalized values, not exact strings", gate: "Release gate", gateNote: "score did not drop, no attack case got worse", pass: "Release", block: "Blocked, with the failing cases", weak: "5 examples, exact strings", weakNote: "misses changes elsewhere; fails right answers on spelling", title: "Eval in the release path" },
+  tr: { change: "Değişiklik", changeNote: "prompt, model ya da kod", set: "Eval kümesi", setNote: "etiketli vakalar + saldırı vakaları", run: "İki sürümü çalıştır", runNote: "aynı vakalar, aynı ayarlar, tekrarlı", cmp: "Alan bazında karşılaştır", cmpNote: "normalize değerler, tam metin değil", gate: "Sürüm kapısı", gateNote: "skor düşmedi, hiçbir saldırı vakası kötüleşmedi", pass: "Sürüm çıkar", block: "Durdurulur, başarısız vakalarla", weak: "5 örnek, tam metin", weakNote: "başka yerdeki değişiklikleri kaçırır; doğru cevabı yazımdan düşürür", title: "Sürüm yolunda eval" },
+}[lang];
+---
+<figure class="diagram">
+<svg viewBox="0 0 450 470" role="img" aria-label={L.title}>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <rect class="box untrusted" x="20" y="10" width="190" height="52" rx="8"/>
+  <text x="115" y="31" text-anchor="middle">{L.change}</text><text class="small" x="115" y="48" text-anchor="middle">{L.changeNote}</text>
+  <rect class="box control" x="240" y="10" width="190" height="52" rx="8"/>
+  <text x="335" y="31" text-anchor="middle">{L.set}</text><text class="small" x="335" y="48" text-anchor="middle">{L.setNote}</text>
+  <path class="edge" d="M115,62 V98"/>
+  <path class="edge" d="M335,62 V98"/>
+  <rect class="box" x="20" y="100" width="410" height="52" rx="8"/>
+  <text x="225" y="121" text-anchor="middle">{L.run}</text><text class="small" x="225" y="139" text-anchor="middle">{L.runNote}</text>
+  <path class="edge" d="M225,152 V188"/>
+  <rect class="box control" x="20" y="190" width="410" height="52" rx="8"/>
+  <text x="225" y="211" text-anchor="middle">{L.cmp}</text><text class="small" x="225" y="229" text-anchor="middle">{L.cmpNote}</text>
+  <path class="edge" d="M225,242 V278"/>
+  <rect class="box control" x="20" y="280" width="410" height="52" rx="8"/>
+  <text x="225" y="301" text-anchor="middle">{L.gate}</text><text class="small" x="225" y="319" text-anchor="middle">{L.gateNote}</text>
+  <path class="edge" d="M115,332 V368"/>
+  <path class="edge" d="M335,332 V368"/>
+  <rect class="box sink" x="20" y="370" width="190" height="36" rx="8"/>
+  <text x="115" y="393" text-anchor="middle">{L.pass}</text>
+  <rect class="box sink" x="240" y="370" width="190" height="36" rx="8"/>
+  <text x="335" y="393" text-anchor="middle">{L.block}</text>
+  <rect class="box weak" x="20" y="418" width="410" height="46" rx="8"/>
+  <text x="225" y="437" text-anchor="middle">{L.weak}</text><text class="small" x="225" y="454" text-anchor="middle">{L.weakNote}</text>
+</svg>
+</figure>
