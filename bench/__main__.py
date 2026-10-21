@@ -59,6 +59,7 @@ def main() -> int:
         "config": {"repeats": args.repeats, "temperatures": list(temps), **getattr(mod, "CONFIG", {}), **({"arms": arms} if arms else {})},
         "models": [],
     }
+    all_records = []
     for model in [m.strip() for m in args.models.split(",") if m.strip()]:
         print(f"{model}: running", file=sys.stderr)
         kwargs = {"arms": arms} if arms else {}
@@ -68,11 +69,14 @@ def main() -> int:
         with open(out / "raw" / name / f"{safe}.jsonl", "w", encoding="utf-8") as f:
             for rec in res["records"]:
                 f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        all_records.append((model, res["records"]))
         if res.get("retrieval") is not None:
             result["retrieval"] = res["retrieval"]  # model independent
         result["models"].append({"model": model, "info": client.model_info(model),
                                  "summary": res["summary"], "examples": res["examples"],
                                  "constrained_error": res.get("constrained_error")})
+    if hasattr(mod, "summarize_all"):  # comparisons across models (for example a model swap)
+        result["cross_model"] = mod.summarize_all(all_records)
     (out / f"{name}.json").write_text(json.dumps(result, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"wrote {out / (name + '.json')}", file=sys.stderr)
     return 0
@@ -87,11 +91,15 @@ def summarize(pattern: str, out: Path, name: str) -> int:
         return 1
     path = out / f"{name}.json"
     result = json.loads(path.read_text(encoding="utf-8"))
+    all_records = []
     for m in result["models"]:
         safe = re.sub(r"[^A-Za-z0-9._-]", "_", m["model"])
         raw = out / "raw" / name / f"{safe}.jsonl"
         records = [json.loads(line) for line in raw.read_text(encoding="utf-8").splitlines() if line.strip()]
         m["summary"], m["examples"] = mod.summarize(records)
+        all_records.append((m["model"], records))
+    if hasattr(mod, "summarize_all"):
+        result["cross_model"] = mod.summarize_all(all_records)
     result["summarized_git_sha"] = env.git_sha()
     path.write_text(json.dumps(result, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"rewrote {path}", file=sys.stderr)
