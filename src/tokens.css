@@ -1,0 +1,75 @@
+/* Design language TD-1 (silexi/portfolio docs/tasarim-dili.md). This repo's own copy (MK-20). */
+
+/* Raw colours: stone neutrals shared across Bartu's sites. Components use the roles below, not these. */
+:root {
+  --stone-50: #fafaf9; --stone-100: #f5f5f4; --stone-200: #e7e5e4; --stone-300: #d6d3d1; --stone-400: #a8a29e;
+  --stone-500: #78716c; --stone-600: #57534e; --stone-700: #44403c; --stone-800: #292524; --stone-900: #1c1917; --stone-950: #0c0a09;
+}
+
+/* Roles, light theme */
+:root {
+  color-scheme: light dark;
+  --td: "TD-1"; /* design language version; the build check looks for it */
+  --color-bg: var(--stone-50);
+  --color-surface: #ffffff;
+  --color-code: var(--stone-100);
+  --color-text: var(--stone-900);
+  --color-text-muted: var(--stone-600);
+  --color-border: var(--stone-200);
+  --color-accent: #1d5fd1;          /* the product's one accent: links, controls, selected state */
+  --color-accent-text: #ffffff;
+  --color-focus: #1d5fd1;
+  --color-danger: #b42318;
+  --color-success: #1a7f37;
+  --color-warning: #8a5a00;
+  --color-warning-bg: #fff4dc;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --text-xs: 0.8125rem;   /* 13 px, the floor for visible text */
+  --text-sm: 0.875rem;    /* 14 */
+  --text-md: 1rem;        /* 16 */
+  --text-body: 1.0625rem; /* 17, reading text */
+  --text-lead: 1.125rem;  /* 18 */
+  --text-lg: 1.25rem;     /* 20, h3 */
+  --text-xl: 1.5rem;      /* 24, h2 */
+  --text-2xl: 1.875rem;   /* 30, h1 below 48rem */
+  --text-3xl: 2.25rem;    /* 36, h1 from 48rem */
+  --leading-body: 1.6;
+  --leading-ui: 1.5;
+  --leading-head: 1.25;
+
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
+  --space-5: 1.5rem; --space-6: 2rem; --space-7: 3rem; --space-8: 4rem;
+  --gutter: 1rem;
+
+  --target: 24px;     /* WCAG 2.5.8; 44 px on touch screens, below */
+  --focus-width: 2px;
+  --duration-fast: 150ms;
+}
+
+/* Roles, dark theme: same names, other values */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #12100e;
+    --color-surface: #1c1a17;
+    --color-code: #1c1a17;
+    --color-text: var(--stone-200);
+    --color-text-muted: #b3ada7;
+    --color-border: var(--stone-800);
+    --color-accent: #6ea2f7;
+    --color-accent-text: #12100e;
+    --color-focus: #6ea2f7;
+    --color-danger: #f97066;
+    --color-success: #4ac26b;
+    --color-warning: #f3d58a;
+    --color-warning-bg: #3a2f12;
+  }
+}
+
+@media (min-width: 48rem) { :root { --gutter: 1.5rem; } }
+@media (pointer: coarse) { :root { --target: 44px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; animation-duration: 0s !important; scroll-behavior: auto !important; }
+}

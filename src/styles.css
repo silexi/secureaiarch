@@ -1,55 +1,59 @@
-:root {
-  --bg: #fbfbfa; --panel: #fff; --fg: #17191c; --mute: #5d6570; --rule: #e1e4e8;
-  --accent: #1d5fd1; --ok: #1a7f37; --bad: #b42318; --code: #f3f4f6; --warn: #8a5a00; --warnbg: #fff4dc;
-}
+@import "./tokens.css";
 @media (prefers-color-scheme: dark) {
-  :root { --bg: #0e1013; --panel: #15181d; --fg: #e7e9ec; --mute: #9aa3ad; --rule: #2a2f37;
-    --accent: #6ea2f7; --ok: #4ac26b; --bad: #f97066; --code: #1b1f25; --warn: #f3d58a; --warnbg: #3a2f12; }
   .astro-code, .astro-code span { color: var(--shiki-dark) !important; background-color: var(--shiki-dark-bg) !important; }
 }
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.65 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
-.wrap { max-width: 860px; margin: 0 auto; padding: 0 16px; }
-a { color: var(--accent); }
-.top { border-bottom: 1px solid var(--rule); background: var(--panel); }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { margin: 0; background: var(--color-bg); color: var(--color-text); font-family: var(--font-sans); font-size: var(--text-body); line-height: var(--leading-body); }
+.wrap { max-width: calc(53.75rem + 2 * var(--gutter)); margin: 0 auto; padding: 0 max(var(--gutter), env(safe-area-inset-right)) 0 max(var(--gutter), env(safe-area-inset-left)); }
+a { color: var(--color-accent); text-underline-offset: .25em; text-decoration-thickness: 1px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: var(--focus-width) solid var(--color-focus); outline-offset: 2px; border-radius: 2px; }
+.top { border-bottom: 1px solid var(--color-border); background: var(--color-surface); }
 .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; flex-wrap: wrap; }
-.brand { font-weight: 650; color: var(--fg); text-decoration: none; letter-spacing: -.01em; }
-nav { display: flex; gap: 16px; font-size: 14px; }
-nav a { color: var(--mute); text-decoration: none; }
-nav a:hover { color: var(--fg); }
-h1 { font-size: 30px; line-height: 1.2; letter-spacing: -.015em; margin: 40px 0 8px; }
-h2 { font-size: 21px; margin: 40px 0 10px; letter-spacing: -.01em; }
-h3 { font-size: 17px; margin: 24px 0 8px; }
-.lead { color: var(--mute); font-size: 18px; margin: 0 0 8px; }
-.thesis { border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; margin: 20px 0; font-size: 17px; }
-.meta { color: var(--mute); font-size: 13px; }
-.badge { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--rule); color: var(--mute); vertical-align: middle; }
-.badge.ok { color: var(--ok); border-color: currentColor; }
+.brand { font-weight: 650; color: var(--color-text); text-decoration: none; letter-spacing: -.01em; }
+nav { display: flex; gap: var(--space-2) var(--space-4); font-size: var(--text-sm); flex-wrap: wrap; }
+/* Navigation links are standalone targets: at least 24 px, 44 px on touch (TD-1 3.4). Padding with an equal negative margin keeps the text in place. */
+nav a, .brand { display: inline-flex; align-items: center; min-height: var(--target); padding: 0 var(--space-2); margin: 0 calc(-1 * var(--space-2)); }
+nav a { color: var(--color-text-muted); text-decoration: none; }
+nav a:hover { color: var(--color-text); }
+h1 { font-size: var(--text-2xl); line-height: var(--leading-head); letter-spacing: -.015em; margin: var(--space-6) 0 var(--space-2); }
+@media (min-width: 48rem) { h1 { font-size: var(--text-3xl); margin-top: 2.5rem; } }
+h2 { font-size: var(--text-xl); line-height: var(--leading-head); margin: 2.5rem 0 var(--space-3); letter-spacing: -.01em; }
+h3 { font-size: var(--text-lg); line-height: var(--leading-head); margin: var(--space-5) 0 var(--space-2); }
+.lead { color: var(--color-text-muted); font-size: var(--text-lead); margin: 0 0 var(--space-2); }
+.thesis { border-left: 3px solid var(--color-accent); padding: 4px 0 4px 14px; margin: 20px 0; font-size: var(--text-body); }
+.meta { color: var(--color-text-muted); font-size: var(--text-sm); }
+.badge { display: inline-block; font-size: var(--text-xs); line-height: var(--leading-ui); padding: 1px 8px; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-muted); vertical-align: middle; }
+.badge.ok { color: var(--color-success); border-color: currentColor; }
 .cards { list-style: none; padding: 0; display: grid; gap: 12px; }
-.cards li { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 16px 18px; }
+.cards li { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; padding: 16px 18px; }
 .cards a { font-weight: 600; text-decoration: none; }
-.cards p { margin: 6px 0 0; color: var(--mute); }
-table { border-collapse: collapse; width: 100%; font-size: 14px; display: block; overflow-x: auto; }
-th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
-th { color: var(--mute); font-weight: 600; white-space: nowrap; }
+.cards p { margin: 6px 0 0; color: var(--color-text-muted); }
+table { border-collapse: collapse; width: 100%; font-size: var(--text-sm); display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+/* Text columns keep a readable width; on a narrow screen the table scrolls sideways instead of squeezing (TD-1 3.5). */
+td { min-width: 9rem; }
+td.num { min-width: 0; }
+th { color: var(--color-text-muted); font-weight: 600; white-space: nowrap; }
 td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
-code { background: var(--code); padding: 1px 5px; border-radius: 4px; font-size: .92em; }
-pre { padding: 14px 16px; border-radius: 8px; overflow-x: auto; font-size: 13.5px; line-height: 1.5; background: var(--code); }
+code { font-family: var(--font-mono); background: var(--color-code); padding: 1px 5px; border-radius: 4px; font-size: max(.9em, var(--text-xs)); }
+pre { padding: 14px 16px; border-radius: 8px; overflow-x: auto; font-size: var(--text-sm); line-height: var(--leading-ui); background: var(--color-code); }
 pre code { background: none; padding: 0; }
-.notice { background: var(--warnbg); color: var(--warn); padding: 12px 14px; border-radius: 8px; }
-.diagram { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 12px; margin: 16px 0; }
-.diagram svg { width: 100%; max-width: 460px; height: auto; display: block; margin: 0 auto; }
-.diagram .box { fill: var(--panel); stroke: var(--fg); stroke-width: 1.2; }
-.diagram .box.untrusted { stroke: var(--bad); stroke-dasharray: 4 3; }
-.diagram .box.control { stroke: var(--accent); stroke-width: 1.8; }
-.diagram .box.weak { stroke: var(--mute); stroke-dasharray: 2 4; }
-.diagram .box.sink { stroke: var(--ok); stroke-width: 1.6; }
-.diagram text { fill: var(--fg); font: 13px ui-sans-serif, system-ui, sans-serif; }
-.diagram text.small { fill: var(--mute); font-size: 11px; }
-.diagram .edge { stroke: var(--mute); stroke-width: 1.3; fill: none; marker-end: url(#arrow); }
-.diagram .edge.fail { stroke: var(--bad); }
-.diagram marker path { fill: var(--mute); }
-details { background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 14px; margin: 10px 0; }
+.notice { background: var(--color-warning-bg); color: var(--color-warning); padding: 12px 14px; border-radius: 8px; }
+/* Diagrams keep their drawn size on narrow screens and scroll sideways, so labels stay at 11 px or more (TD-1 3.5). */
+.diagram { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; padding: 12px; margin: 16px 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.diagram svg { width: 100%; min-width: 450px; max-width: 460px; height: auto; display: block; margin: 0 auto; }
+.diagram .box { fill: var(--color-surface); stroke: var(--color-text); stroke-width: 1.2; }
+.diagram .box.untrusted { stroke: var(--color-danger); stroke-dasharray: 4 3; }
+.diagram .box.control { stroke: var(--color-accent); stroke-width: 1.8; }
+.diagram .box.weak { stroke: var(--color-text-muted); stroke-dasharray: 2 4; }
+.diagram .box.sink { stroke: var(--color-success); stroke-width: 1.6; }
+.diagram text { fill: var(--color-text); font-family: var(--font-sans); font-size: 13px; }
+.diagram text.small { fill: var(--color-text-muted); font-size: 11px; }
+.diagram .edge { stroke: var(--color-text-muted); stroke-width: 1.3; fill: none; marker-end: url(#arrow); }
+.diagram .edge.fail { stroke: var(--color-danger); }
+.diagram marker path { fill: var(--color-text-muted); }
+details { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 10px 14px; margin: 10px 0; }
 summary { cursor: pointer; font-weight: 600; }
-.foot { color: var(--mute); font-size: 13px; padding: 32px 16px 48px; }
+.foot { color: var(--color-text-muted); font-size: var(--text-sm); padding-top: var(--space-6); padding-bottom: var(--space-7); }

@@ -6,7 +6,7 @@ const L = {
   tr: { ticket: "Talep metni", untrusted: "güvenilmeyen girdi", llm: "LLM", llmNote: "isteğe bağlı: kısıtlı üretim", parse: "JSON ayrıştır", validate: "Şema doğrula", validateNote: "tip, enum, aralık, fazla alan yok", sink: "Kayıt sistemi", repair: "Onarım turu", repairNote: "en fazla 1, sıc. 0", human: "İnsan kuyruğu", fail: "geçersiz", ok: "uygun", still: "hâlâ geçersiz", title: "Yapılandırılmış çıktı topolojisi" },
 }[lang];
 ---
-<figure class="diagram">
+<figure class="diagram" tabindex="0">
 <svg viewBox="0 0 430 400" role="img" aria-label={L.title}>
   <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>
   <rect class="box untrusted" x="30" y="10" width="210" height="48" rx="8"/>
