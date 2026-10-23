@@ -7,7 +7,7 @@ import { join, extname } from "node:path";
 import { chromium } from "playwright-core";
 
 const root = "dist";
-const types = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".svg": "image/svg+xml", ".txt": "text/plain" };
+const types = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".svg": "image/svg+xml", ".txt": "text/plain", ".js": "text/javascript", ".mjs": "text/javascript", ".json": "application/json" };
 const server = createServer((req, res) => {
   let p = join(root, decodeURIComponent(req.url.split("?")[0]));
   if (existsSync(p) && statSync(p).isDirectory()) p = existsSync(join(p, "index.html")) ? join(p, "index.html") : p.replace(/\/$/, "") + ".html";
